@@ -1,5 +1,6 @@
 import {parseMasterList} from './master-list.mjs';
-export const MASTER_URL='https://master.multitheftauto.com/ase/mta/';
+export const MASTER_URL='http://master.mtasa.com/ase/mta/';
+const MASTER_URL_BACKUP='https://master.multitheftauto.com/ase/mta/';
 export const TARGET_IP='94.23.168.153',TARGET_PORT=22097;
 const CACHE_MS=30000,MAX_SOURCE_AGE=5*60*1000;
 let cached=null,pending=null;
@@ -9,8 +10,9 @@ export async function loadStatus(fetcher=fetch,now=Date.now()){
  try{
   // The deployed Workers runtime supports manual/follow only. Reject redirects
   // through the status check below, keeping this request on the fixed MTA origin.
+  const request=()=>fetcher(MASTER_URL,{headers:{Accept:'application/octet-stream','User-Agent':'PRIME-RP status monitor/1.0'}}).catch(()=>fetcher(MASTER_URL_BACKUP,{headers:{Accept:'application/octet-stream','User-Agent':'PRIME-RP status monitor/1.0'}}));
   const response=await Promise.race([
-   fetcher(MASTER_URL,{headers:{Accept:'application/octet-stream'}}),
+   request(),
    new Promise((_,reject)=>setTimeout(()=>reject(new Error('MTA_MASTER_TIMEOUT')),10000))
   ]);
   if(!response.ok)throw new Error(`MTA_UPSTREAM_HTTP_${response.status}`);
