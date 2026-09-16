@@ -1,0 +1,3 @@
+import { useMotionValue, useSpring, useTransform, useReducedMotion } from 'framer-motion';
+import type { PointerEvent } from 'react';
+export function useParallax(amount=12){const reduced=useReducedMotion();const x=useMotionValue(0),y=useMotionValue(0);const sx=useSpring(x,{stiffness:70,damping:25}),sy=useSpring(y,{stiffness:70,damping:25});const rx=useTransform(sy,v=>v*-.12),ry=useTransform(sx,v=>v*.12);return {x:sx,y:sy,rotateX:rx,rotateY:ry,onPointerMove:(e:PointerEvent<HTMLElement>)=>{if(reduced||e.pointerType!=='mouse'||window.innerWidth<1024)return;const b=e.currentTarget.getBoundingClientRect();x.set(((e.clientX-b.left)/b.width-.5)*amount);y.set(((e.clientY-b.top)/b.height-.5)*amount)},onPointerLeave:()=>{x.set(0);y.set(0)}};}

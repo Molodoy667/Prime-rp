@@ -1,0 +1,20 @@
+import {useEffect,useRef,useState} from 'react';
+import {AnimatePresence,motion} from 'framer-motion';
+import {ChevronLeft,ChevronRight,Expand,Pause,Play,X} from 'lucide-react';
+import {Reveal,SectionTitle} from '../ui';
+
+export const projectGallery=[
+ {src:'/assets/project-gallery-1.webp',title:'СИЛА ДЕРЖАВНИХ СТРУКТУР',label:'01 / СВІТ PRIME RP'},
+ {src:'/assets/project-gallery-2.webp',title:'РУХ ПОЧИНАЄТЬСЯ ТУТ',label:'02 / ДИНАМІКА'},
+ {src:'/assets/project-gallery-3.webp',title:'ДОРОГИ, ЩО З’ЄДНУЮТЬ',label:'03 / ТРАНСПОРТ'},
+ {src:'/assets/project-gallery-4.webp',title:'КОЖНА СИТУАЦІЯ МАЄ ІСТОРІЮ',label:'04 / ROLEPLAY'},
+ {src:'/assets/project-gallery-5.webp',title:'ТІНЬОВИЙ БІК МІСТА',label:'05 / ВИБІР ШЛЯХУ'}
+];
+
+export default function ProjectGallery(){
+ const [index,setIndex]=useState(0),[paused,setPaused]=useState(false),[lightbox,setLightbox]=useState(false);const startX=useRef<number|null>(null);const item=projectGallery[index];
+ const next=()=>setIndex(v=>(v+1)%projectGallery.length),prev=()=>setIndex(v=>(v+projectGallery.length-1)%projectGallery.length);
+ useEffect(()=>{if(paused||lightbox)return;const timer=window.setInterval(next,5500);return()=>window.clearInterval(timer)},[paused,lightbox]);
+ const swipeStart=(x:number)=>{startX.current=x};const swipeEnd=(x:number)=>{if(startX.current===null)return;const distance=x-startX.current;if(Math.abs(distance)>45)(distance<0?next:prev)();startX.current=null};
+ return <Reveal id="project-gallery" className="project-gallery wrap"><SectionTitle eyebrow="КАДРИ ЗІ СВІТУ PRIME" title="ГАЛЕРЕЯ" accent="ПРОЄКТУ"><p className="muted small">П’ять історій. Один світ.<br/>Гортай, щоб побачити більше.</p></SectionTitle><div className="project-gallery-shell" onMouseEnter={()=>setPaused(true)} onMouseLeave={()=>setPaused(false)} onTouchStart={e=>swipeStart(e.changedTouches[0].clientX)} onTouchEnd={e=>swipeEnd(e.changedTouches[0].clientX)}><div className="project-gallery-frame"><AnimatePresence mode="wait"><motion.img key={item.src} src={item.src} alt={item.title} initial={{opacity:0,scale:1.04}} animate={{opacity:1,scale:1}} exit={{opacity:0,scale:.98}} transition={{duration:.55}} draggable={false}/></AnimatePresence><div className="project-gallery-shade"/><div className="project-gallery-copy"><span>{item.label}</span><h3>{item.title}</h3></div><button className="project-gallery-expand icon-button" onClick={()=>setLightbox(true)} aria-label="Відкрити зображення на весь екран"><Expand size={19}/></button><div className="project-gallery-controls"><button className="icon-button" onClick={prev} aria-label="Попереднє зображення"><ChevronLeft/></button><button className="icon-button" onClick={next} aria-label="Наступне зображення"><ChevronRight/></button></div></div><div className="project-gallery-footer"><div className="project-gallery-dots" role="tablist" aria-label="Зображення галереї">{projectGallery.map((slide,i)=><button key={slide.src} className={i===index?'active':''} onClick={()=>setIndex(i)} role="tab" aria-selected={i===index} aria-label={`Зображення ${i+1}: ${slide.title}`}><span/></button>)}</div><button className="project-gallery-play" onClick={()=>setPaused(v=>!v)} aria-label={paused?'Продовжити автоматичну зміну':'Призупинити автоматичну зміну'}>{paused?<Play size={14}/>:<Pause size={14}/>}<span>{paused?'ПРОДОВЖИТИ':'ПАУЗА'}</span></button><span className="project-gallery-count">{String(index+1).padStart(2,'0')} / {String(projectGallery.length).padStart(2,'0')}</span></div></div>{lightbox&&<div className="project-lightbox" role="dialog" aria-modal="true" aria-label={item.title} onClick={e=>{if(e.target===e.currentTarget)setLightbox(false)}}><button className="project-lightbox-close icon-button" onClick={()=>setLightbox(false)} aria-label="Закрити"><X/></button><img src={item.src} alt={item.title}/><div className="project-lightbox-nav"><button className="icon-button" onClick={prev} aria-label="Попереднє зображення"><ChevronLeft/></button><span>{item.title}</span><button className="icon-button" onClick={next} aria-label="Наступне зображення"><ChevronRight/></button></div></div>}</Reveal>
+}
