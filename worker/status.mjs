@@ -9,7 +9,7 @@ export async function loadStatus(fetcher=fetch,now=Date.now()){
  try{
   // The deployed Workers runtime supports manual/follow only. Reject redirects
   // through the status check below, keeping this request on the fixed MTA origin.
-  const response=await fetcher(MASTER_URL,{signal:AbortSignal.timeout(10000),headers:{Accept:'application/octet-stream'},redirect:'manual'});
+  const response=await fetcher(MASTER_URL,{signal:AbortSignal.timeout(10000),headers:{Accept:'application/octet-stream'},redirect:'follow'});
   if(!response.ok)throw new Error(`MTA_UPSTREAM_HTTP_${response.status}`);
   if(Number(response.headers.get('content-length'))>4*1024*1024)throw new Error('Master response too large');
   const buffer=await response.arrayBuffer();if(buffer.byteLength>4*1024*1024)throw new Error('Master response too large');
