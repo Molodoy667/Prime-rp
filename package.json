@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite --host 0.0.0.0 --port 4173",
     "build": "tsc -b && node scripts/clean-build.mjs && vite build && node scripts/build-worker.mjs",
+    "build:vercel": "tsc -b && vite build --outDir dist",
     "preview": "vite preview --host 0.0.0.0 --port 4173",
     "test:server": "node --test tests/server-status.test.mjs"
   },
