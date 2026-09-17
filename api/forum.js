@@ -9,7 +9,9 @@ export default async function handler(request, response) {
       const [categories] = await db.query(`SELECT c.id,c.title,c.description,c.icon,c.color,COUNT(DISTINCT t.id) topics,COUNT(r.id) posts FROM forum_categories c LEFT JOIN forum_topics t ON t.category_id=c.id LEFT JOIN forum_replies r ON r.topic_id=t.id GROUP BY c.id ORDER BY c.sort_order,c.id`);
       const [topics] = await db.query(`SELECT t.id,t.category_id categoryId,t.title,t.body excerpt,u.username author,u.role authorRole,t.replies_count replies,t.views,t.created_at createdAt,la.username lastAuthor,t.last_at lastAt,t.pinned,t.locked,t.tags FROM forum_topics t JOIN forum_users u ON u.id=t.author_id JOIN forum_users la ON la.id=t.last_author ORDER BY t.pinned DESC,t.last_at DESC`);
       const [replies] = await db.query(`SELECT r.id,r.topic_id topicId,u.username author,u.role,r.body,r.created_at createdAt,r.likes FROM forum_replies r JOIN forum_users u ON u.id=r.author_id ORDER BY r.created_at`);
-      return json(response, 200, { categories: categories.map(clean), topics: topics.map(clean), replies: replies.map(clean) });
+      const [[members]] = await db.query('SELECT COUNT(*) total FROM forum_users');
+      const [[online]] = await db.query('SELECT COUNT(*) total FROM ugta_players WHERE online > 0');
+      return json(response, 200, { categories: categories.map(clean), topics: topics.map(clean), replies: replies.map(clean), stats: { members: Number(members.total), topics: topics.length, online: Number(online.total) } });
     }
     if (request.method === 'POST') {
       const { action, userId, categoryId, title, body, topicId } = request.body || {};
