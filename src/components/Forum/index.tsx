@@ -653,14 +653,14 @@ export default function Forum() {
                     </div>
                     <div className="forum-stats">
                       <strong>
-                        1 248<small>УЧАСНИКІВ</small>
+                        {stats.members.toLocaleString('uk-UA')}<small>УЧАСНИКІВ</small>
                       </strong>
                       <strong>
                         {topics.length}
-                        <small>ТЕМ У MOCK</small>
+                        <small>ТЕМ</small>
                       </strong>
                       <strong>
-                        36<small>ОНЛАЙН</small>
+                        {stats.online.toLocaleString('uk-UA')}<small>ОНЛАЙН</small>
                       </strong>
                     </div>
                   </div>
