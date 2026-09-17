@@ -5,7 +5,7 @@ export default async function handler(request, response) {
   const login = typeof request.body?.login === 'string' ? request.body.login.trim() : '';
   const password = typeof request.body?.password === 'string' ? request.body.password : '';
   if (!login || !password || login.length > 32 || password.length > 128) {
-    return json(response, 400, { error: 'Введите логин и пароль' });
+    return json(response, 400, { error: 'Введіть логін і пароль' });
   }
   try {
     const [rows] = await getDatabase().query(
@@ -16,12 +16,12 @@ export default async function handler(request, response) {
     );
     const player = rows[0];
     if (!player || player.banned || player.password !== password) {
-      return json(response, 401, { error: 'Неверный логин или пароль' });
+      return json(response, 401, { error: 'Неправильний логін або пароль' });
     }
     const { password: _password, ...safePlayer } = player;
     return json(response, 200, { player: safePlayer });
   } catch (error) {
     console.error('auth API failed', error);
-    return json(response, 503, { error: 'Авторизация временно недоступна' });
+    return json(response, 503, { error: 'Авторизація тимчасово недоступна' });
   }
 }
