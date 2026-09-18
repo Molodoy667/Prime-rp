@@ -1,5 +1,4 @@
 import {siteConfig} from '../config/site';
-import {mockNews} from './content';
 import type {Server,NewsItem} from '../types';
 async function request<T>(url:string,signal?:AbortSignal):Promise<T>{
  if(!url)throw new Error('API не підключено');
@@ -17,4 +16,4 @@ export async function getServers(signal?:AbortSignal):Promise<Server[]>{
  if(server.status==='online'&&(server.players===null||server.capacity===null||server.players>server.capacity))throw new Error('Неповні дані онлайну');
  return [server,{id:'prime-2',name:'PRIME RP #2',subtitle:'Наступна глава',status:'soon',players:null,capacity:null,connectUrl:'#'}];
 }
-export const getNews=(signal?:AbortSignal):Promise<NewsItem[]>=>siteConfig.useMockNews?Promise.resolve(mockNews):request(siteConfig.newsApiUrl,signal);
+export const getNews=async(signal?:AbortSignal):Promise<NewsItem[]>=>{const data=await request<{news:NewsItem[]}>(siteConfig.newsApiUrl,signal);return Array.isArray(data.news)?data.news:[];};
