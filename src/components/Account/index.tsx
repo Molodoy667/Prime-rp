@@ -8,6 +8,7 @@ type PlayerRole = 'user' | 'moderator' | 'admin';
 type Vehicle = { id: number; model: number; health?: number; fuel?: number; mileage?: number; number_plate?: string | null; creation_date?: number | null };
 type Apartment = { id: number; number: number; meter_type?: number; sale_state?: number; paid_days?: number; time_to_pay?: number; paid_upgrade?: number };
 type Player = {
+  profile_version?: number;
   id: number;
   nickname: string;
   login: string;
@@ -79,13 +80,14 @@ const roleLabel: Record<PlayerRole, string> = {
   admin: 'АДМІНІСТРАТОР',
 };
 const playerStorageKey = 'prime-account-session';
+const currentProfileVersion = 2;
 
 function loadPlayer(): Player | null {
   try {
     const raw = localStorage.getItem(playerStorageKey);
     if (!raw) return null;
     const player = JSON.parse(raw) as Player;
-    return player && typeof player.id === 'number' && typeof player.login === 'string' &&
+    return player && player.profile_version === currentProfileVersion && typeof player.id === 'number' && typeof player.login === 'string' &&
       typeof player.nickname === 'string' &&
       (player.role === 'user' || player.role === 'moderator' || player.role === 'admin')
       ? player
