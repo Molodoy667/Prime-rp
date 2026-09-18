@@ -92,7 +92,7 @@ export default function Account() {
           <article className="account-card"><Coins/><span className="account-label">ДОНАТ-БАЛАНС</span><strong>{fmt(player.donate)}</strong></article>
           <article className="account-card"><ShieldCheck/><span className="account-label">ДОСВІД</span><strong>{fmt(player.exp)}</strong><small>до наступного рівня</small></article>
         </section>
-        {player.role === 'admin' && <><section className="account-admin-panel"><div><p className="eyebrow"><span/> ADMIN CONTROL</p><h2>ПАНЕЛЬ АДМІНІСТРАТОРА</h2><p>Новости, SEO-теги и настройки сайта управляются из этого раздела и сохраняются в базе данных.</p></div><div className="account-admin-roles"><div><strong>ADMIN</strong><span>полный доступ</span></div><div><strong>MODERATOR</strong><span>модерация</span></div><div><strong>USER</strong><span>базовый доступ</span></div></div></section><AdminPanel actorId={player.id}/></>}
+        {player.role === 'admin' && <><section className="account-admin-panel"><div><p className="eyebrow"><span/> ADMIN CONTROL</p><h2>ПАНЕЛЬ АДМІНІСТРАТОРА</h2><p>Новини, SEO-теги та налаштування сайту керуються з цього розділу й зберігаються в базі даних.</p></div><div className="account-admin-roles"><div><strong>ADMIN</strong><span>повний доступ</span></div><div><strong>MODERATOR</strong><span>модерація</span></div><div><strong>USER</strong><span>базовий доступ</span></div></div></section><AdminPanel actorId={player.id}/></>}
         <a href="/" className="account-home"><ArrowLeft size={16}/> НА ГОЛОВНУ</a>
       </main>
     </div>
