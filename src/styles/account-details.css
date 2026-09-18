@@ -1,6 +1,8 @@
 .account-detail-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin-top:15px}
 .account-detail-card{border:1px solid #ffffff15;background:#101419;min-height:145px;padding:22px;display:flex;flex-direction:column;gap:10px;color:#d6a84b}
 .account-detail-card svg{width:20px;height:20px}
+.account-avatar-frame{width:74px;height:94px;padding:0;overflow:hidden;align-items:flex-start;justify-content:center;background:#0a0f14;border-color:#d6a84b66}
+.account-avatar-frame img{display:block;width:100%;height:100%;object-fit:cover;object-position:center top;transform:scale(1.22);transform-origin:top center}
 .account-detail-card strong{font-family:var(--heading);font-size:1.45rem;color:#f2d18e;line-height:1.2}
 .account-detail-card small{color:#858c95;font-size:.7rem;line-height:1.5}
 .account-date{font-family:Manrope,sans-serif!important;font-size:.95rem!important}
@@ -11,4 +13,21 @@
 .account-information-column dt,.account-information-column dd{padding:10px 0;border-bottom:1px solid #ffffff0d;font-size:.72rem}
 .account-information-column dt{color:#7f8993}
 .account-information-column dd{color:#d7d8d4;text-align:right;overflow-wrap:anywhere}
-@media(max-width:800px){.account-detail-grid{grid-template-columns:1fr 1fr}.account-information{grid-template-columns:1fr}.account-information-column{padding:20px}}
+.account-assets-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:15px;margin-top:15px}
+.account-asset-panel{border:1px solid #ffffff15;background:#101419;padding:25px}
+.account-asset-heading{display:flex;align-items:end;justify-content:space-between;gap:15px;margin-bottom:18px}
+.account-asset-heading h2{font-size:1.3rem;margin-top:9px}
+.account-asset-heading>strong{font-family:var(--heading);font-size:2rem;color:#f2d18e}
+.account-vehicle-list{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.account-vehicle-card{display:grid;grid-template-columns:105px 1fr;gap:12px;align-items:center;min-width:0;border:1px solid #ffffff12;background:#0b1117;overflow:hidden}
+.account-vehicle-card>img{width:105px;height:76px;object-fit:contain;background:#080d12}
+.account-vehicle-card>div{display:grid;gap:4px;padding:9px 9px 9px 0;min-width:0}
+.account-vehicle-card strong,.account-housing-card strong{font-size:.78rem;color:#e8d29c;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.account-vehicle-card small,.account-housing-card small{font-size:.64rem;color:#89929a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.account-vehicle-placeholder{width:105px;height:76px;display:grid;place-items:center;color:#d6a84b}
+.account-housing-list{display:grid;gap:10px}
+.account-housing-card{display:flex;align-items:center;gap:12px;border:1px solid #ffffff12;background:#0b1117;padding:14px}
+.account-housing-card>svg{width:20px;height:20px;color:#d6a84b;flex:none}
+.account-housing-card>div{display:grid;gap:5px;min-width:0}
+.account-empty-assets{color:#89929a;font-size:.78rem;line-height:1.7;margin:25px 0 8px}
+@media(max-width:800px){.account-detail-grid{grid-template-columns:1fr 1fr}.account-information,.account-assets-grid{grid-template-columns:1fr}.account-information-column,.account-asset-panel{padding:20px}.account-vehicle-list{grid-template-columns:1fr}}

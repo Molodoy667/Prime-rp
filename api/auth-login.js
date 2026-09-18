@@ -9,7 +9,8 @@ export default async function handler(request, response) {
     return json(response, 400, { error: 'Введіть логін і пароль' });
   }
   try {
-    const [rows] = await getDatabase().query(
+    const db = getDatabase();
+    const [rows] = await db.query(
       `SELECT id, nickname, login, password, email, level, exp, online, money, donate,
               premium_time_left, premium_total, premium_transactions, premium_last_date,
               donate_total, donate_transactions, donate_last_date,
@@ -31,7 +32,13 @@ export default async function handler(request, response) {
     if (!player || player.banned || player.password !== password) {
       return json(response, 401, { error: 'Неправильний логін або пароль' });
     }
-    player.role = await getPlayerRole(getDatabase(), player.id);
+    const [[vehicles], [apartments]] = await Promise.all([
+      db.query('SELECT id, model, health, fuel, mileage, number_plate, creation_date FROM ugta_vehicles WHERE owner_pid=? AND (deleted IS NULL OR deleted=0) ORDER BY id', [String(player.id)]),
+      db.query('SELECT id, number, meter_type, sale_state, paid_days, time_to_pay, paid_upgrade FROM ugta_apartments WHERE user_id=? ORDER BY number', [player.id]),
+    ]);
+    player.vehicles = vehicles;
+    player.apartments = apartments;
+    player.role = await getPlayerRole(db, player.id);
     const { password: _password, ...safePlayer } = player;
     return json(response, 200, { player: safePlayer });
   } catch (error) {

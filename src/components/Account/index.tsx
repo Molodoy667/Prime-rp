@@ -5,6 +5,8 @@ import { Brand } from '../ui';
 import AdminPanel from './AdminPanel';
 
 type PlayerRole = 'user' | 'moderator' | 'admin';
+type Vehicle = { id: number; model: number; health?: number; fuel?: number; mileage?: number; number_plate?: string | null; creation_date?: number | null };
+type Apartment = { id: number; number: number; meter_type?: number; sale_state?: number; paid_days?: number; time_to_pay?: number; paid_upgrade?: number };
 type Player = {
   id: number;
   nickname: string;
@@ -61,12 +63,16 @@ type Player = {
   housing_count?: number;
   housing_numbers?: string | null;
   vehicles_count?: number;
+  vehicles?: Vehicle[];
+  apartments?: Apartment[];
 };
 
 const fmt = (value: number) => new Intl.NumberFormat('uk-UA').format(Number(value) || 0);
 const dateTime = (value?: number | null) => { const number = Number(value); if (!number) return 'Немає даних'; const date = new Date(number < 100000000000 ? number * 1000 : number); return Number.isNaN(date.getTime()) ? 'Немає даних' : new Intl.DateTimeFormat('uk-UA', { dateStyle:'medium', timeStyle:'short' }).format(date); };
 const timeLeft = (value?: number | null) => { const seconds = Number(value) || 0; if (seconds <= 0) return 'Неактивна'; const days = Math.floor(seconds / 86400); const hours = Math.floor((seconds % 86400) / 3600); return days ? `${days} дн. ${hours} год.` : `${hours} год.`; };
 const valueOrDash = (value?: number | string | null) => value === null || value === undefined || value === '' ? '—' : String(value);
+const skinImage = (skin?: number | null) => { const id = Number(skin); return Number.isInteger(id) && id > 0 ? `/assets/skins/130x160/${id}.png` : null; };
+const vehicleImage = (model?: number | null) => { const id = Number(model); return Number.isInteger(id) && id > 0 ? `/assets/vehicles/300x160/${id}.png` : null; };
 const roleLabel: Record<PlayerRole, string> = {
   user: 'ЗВИЧАЙНИЙ КОРИСТУВАЧ',
   moderator: 'МОДЕРАТОР',
@@ -136,7 +142,7 @@ export default function Account() {
       <main className="account-main">
         <div className="account-dashboard-heading"><div><p className="eyebrow"><span/> PERSONAL SPACE</p><h1>КАБІНЕТ <em>{player.nickname}</em></h1><p className="account-muted">Ігровий профіль PRIME RP та особиста статистика.</p></div><div className="account-level"><span>РІВЕНЬ</span><strong>{player.level}</strong></div></div>
         <section className="account-grid">
-          <article className="account-card account-card-wide"><div className="account-card-icon"><UserRound/></div><div><span className="account-label">ІГРОВИЙ ПРОФІЛЬ</span><h2>{player.nickname}</h2><p>Логін: {player.login}<br/>Електронна пошта: {player.email || 'Не вказано'}<br/>Роль: <strong className="account-role">{roleLabel[player.role]}</strong></p></div><span className="account-status"><i/> {player.online ? 'У ГРІ' : 'НЕ В МЕРЕЖІ'}</span></article>
+          <article className="account-card account-card-wide"><div className="account-card-icon account-avatar-frame">{skinImage(player.skin) ? <img src={skinImage(player.skin)!} alt={`Скін ${player.skin}`}/> : <UserRound/>}</div><div><span className="account-label">ІГРОВИЙ ПРОФІЛЬ</span><h2>{player.nickname}</h2><p>Логін: {player.login}<br/>Електронна пошта: {player.email || 'Не вказано'}<br/>Роль: <strong className="account-role">{roleLabel[player.role]}</strong></p></div><span className="account-status"><i/> {player.online ? 'У ГРІ' : 'НЕ В МЕРЕЖІ'}</span></article>
           <article className="account-card"><Wallet/><span className="account-label">ІГРОВІ ГРОШІ</span><strong>{fmt(player.money)} ₴</strong></article>
           <article className="account-card"><Coins/><span className="account-label">ДОНАТ-БАЛАНС</span><strong>{fmt(player.donate)}</strong></article>
           <article className="account-card"><ShieldCheck/><span className="account-label">ДОСВІД</span><strong>{fmt(player.exp)}</strong><small>до наступного рівня</small></article>
@@ -174,6 +180,10 @@ export default function Account() {
             <dt>Підписка</dt><dd>{timeLeft(player.subscription_time_left)} · баланс: {fmt(player.subscription_total || 0)}</dd>
             <dt>Бізнес-монети / кіно</dt><dd>{fmt(player.business_coins || 0)} / {fmt(player.cinema_balance || 0)}</dd>
           </dl></div>
+        </section>
+        <section className="account-assets-grid">
+          <div className="account-asset-panel"><div className="account-asset-heading"><div><span className="account-label">ГАРАЖ</span><h2>МОЇ МАШИНИ</h2></div><strong>{fmt(player.vehicles?.length || 0)}</strong></div>{player.vehicles?.length ? <div className="account-vehicle-list">{player.vehicles.map(vehicle => <article className="account-vehicle-card" key={vehicle.id}>{vehicleImage(vehicle.model) ? <img src={vehicleImage(vehicle.model)!} alt={`Модель ${vehicle.model}`}/> : <div className="account-vehicle-placeholder"><CarFront/></div>}<div><strong>Модель #{vehicle.model}</strong><small>Номер: {vehicle.number_plate || 'Не встановлено'}</small><small>Стан: {Math.round(Number(vehicle.health) || 0)} · Паливо: {Math.round(Number(vehicle.fuel) || 0)}%</small><small>Пробіг: {fmt(vehicle.mileage || 0)} км</small></div></article>)}</div> : <p className="account-empty-assets">У власності немає зареєстрованих машин.</p>}</div>
+          <div className="account-asset-panel"><div className="account-asset-heading"><div><span className="account-label">НЕРУХОМІСТЬ</span><h2>МОЄ ЖИТЛО</h2></div><strong>{fmt(player.apartments?.length || player.housing_count || 0)}</strong></div>{player.apartments?.length ? <div className="account-housing-list">{player.apartments.map(apartment => <article className="account-housing-card" key={apartment.id}><Home/><div><strong>Квартира №{apartment.number}</strong><small>Оплачена до: {dateTime(apartment.time_to_pay)}</small><small>Оплачено днів: {fmt(apartment.paid_days || 0)} · покращення: {fmt(apartment.paid_upgrade || 0)}</small></div></article>)}</div> : <p className="account-empty-assets">Зареєстрованої нерухомості немає.</p>}</div>
         </section>
         {player.role === 'admin' && <><section className="account-admin-panel"><div><p className="eyebrow"><span/> ADMIN CONTROL</p><h2>ПАНЕЛЬ АДМІНІСТРАТОРА</h2><p>Новини, SEO-теги та налаштування сайту керуються з цього розділу й зберігаються в базі даних.</p></div><div className="account-admin-roles"><div><strong>ADMIN</strong><span>повний доступ</span></div><div><strong>MODERATOR</strong><span>модерація</span></div><div><strong>USER</strong><span>базовий доступ</span></div></div></section><AdminPanel actorId={player.id}/></>}
         <a href="/" className="account-home"><ArrowLeft size={16}/> НА ГОЛОВНУ</a>
