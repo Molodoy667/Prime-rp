@@ -1,4 +1,5 @@
 import { getDatabase, json } from './_db.js';
+import { getPlayerRole } from './access-control.js';
 
 export default async function handler(request, response) {
   if (request.method !== 'POST') return json(response, 405, { error: 'Method not allowed' });
@@ -9,7 +10,7 @@ export default async function handler(request, response) {
   }
   try {
     const [rows] = await getDatabase().query(
-      `SELECT id, nickname, login, password, email, cabinet_role role, level, exp, online, money, donate,
+      `SELECT id, nickname, login, password, email, level, exp, online, money, donate,
               premium_time_left, premium_total, premium_transactions, premium_last_date,
               donate_total, donate_transactions, donate_last_date,
               health, calories, armor, quests, BattlePass, phone, phone_balance,
@@ -30,6 +31,7 @@ export default async function handler(request, response) {
     if (!player || player.banned || player.password !== password) {
       return json(response, 401, { error: 'Неправильний логін або пароль' });
     }
+    player.role = await getPlayerRole(getDatabase(), player.id);
     const { password: _password, ...safePlayer } = player;
     return json(response, 200, { player: safePlayer });
   } catch (error) {

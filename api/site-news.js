@@ -1,13 +1,7 @@
 import { getDatabase, json } from './_db.js';
+import { requireAdmin } from './access-control.js';
 
 const MAX_IMAGE_DATA = 2500000;
-
-async function requireAdmin(db, actorId) {
-  const id = Number(actorId);
-  if (!Number.isInteger(id) || id < 1) return false;
-  const [[player]] = await db.query('SELECT cabinet_role FROM ugta_players WHERE id=? LIMIT 1', [id]);
-  return player?.cabinet_role === 'admin';
-}
 
 function clean(row) {
   return { id: String(row.id), slug: row.slug, title: row.title, category: row.category, body: row.body, image: row.image_data || row.image_url || '/assets/hero-1600.webp', imageUrl: row.image_url || '', imageData: row.image_data || '', isPublished: Boolean(row.is_published), isPlaceholder: Boolean(row.is_placeholder), sortOrder: Number(row.sort_order || 0), updatedAt: row.updated_at };
