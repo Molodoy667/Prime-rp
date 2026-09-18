@@ -21,9 +21,13 @@ export default async function handler(request, response) {
               military_level, military_exp, subscription_time_left, subscription_total,
               subscription_transactions, subscription_last_date, business_coins, cinema_balance,
               playing_time, reg_date, last_date, last_enter_date, birthday, sessions_counter,
-              (SELECT COUNT(*) FROM ugta_apartments a WHERE a.user_id = ugta_players.id) housing_count,
-              (SELECT GROUP_CONCAT(a.number ORDER BY a.number SEPARATOR ', ') FROM ugta_apartments a WHERE a.user_id = ugta_players.id) housing_numbers,
-              (SELECT COUNT(*) FROM ugta_vehicles v WHERE v.owner_pid = CAST(ugta_players.id AS CHAR) AND (v.deleted IS NULL OR v.deleted = 0)) vehicles_count,
+              (SELECT COUNT(*) FROM ugta_apartments a WHERE a.user_id = ugta_players.id) +
+              (SELECT COUNT(*) FROM ugta_viphouses h WHERE h.owner = ugta_players.id) housing_count,
+              CONCAT_WS(', ',
+                (SELECT GROUP_CONCAT(a.number ORDER BY a.number SEPARATOR ', ') FROM ugta_apartments a WHERE a.user_id = ugta_players.id),
+                (SELECT GROUP_CONCAT(h.hid ORDER BY h.id SEPARATOR ', ') FROM ugta_viphouses h WHERE h.owner = ugta_players.id)
+              ) housing_numbers,
+              (SELECT COUNT(*) FROM ugta_vehicles v WHERE v.owner_pid = CONCAT('p:', ugta_players.id) AND (v.deleted IS NULL OR v.deleted = 0)) vehicles_count,
               banned
        FROM ugta_players WHERE login = ? LIMIT 1`,
       [login],
@@ -32,13 +36,14 @@ export default async function handler(request, response) {
     if (!player || player.banned || player.password !== password) {
       return json(response, 401, { error: 'Неправильний логін або пароль' });
     }
-    const [[vehicles], [apartments]] = await Promise.all([
-      db.query('SELECT id, model, health, fuel, mileage, number_plate, creation_date FROM ugta_vehicles WHERE owner_pid=? AND (deleted IS NULL OR deleted=0) ORDER BY id', [String(player.id)]),
+    const [[vehicles], [apartments], [vipHouses]] = await Promise.all([
+      db.query("SELECT id, model, health, fuel, mileage, number_plate, creation_date FROM ugta_vehicles WHERE owner_pid=? AND (deleted IS NULL OR deleted=0) ORDER BY id", [`p:${player.id}`]),
       db.query('SELECT id, number, meter_type, sale_state, paid_days, time_to_pay, paid_upgrade FROM ugta_apartments WHERE user_id=? ORDER BY number', [player.id]),
+      db.query('SELECT id, hid, owner, sale_state, meter_type FROM ugta_viphouses WHERE owner=? ORDER BY id', [player.id]),
     ]);
     player.profile_version = 2;
     player.vehicles = vehicles;
-    player.apartments = apartments;
+    player.apartments = [...apartments, ...vipHouses];
     player.role = await getPlayerRole(db, player.id);
     const { password: _password, ...safePlayer } = player;
     return json(response, 200, { player: safePlayer });
