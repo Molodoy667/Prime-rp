@@ -9,7 +9,7 @@ export default async function handler(request, response) {
   }
   try {
     const [rows] = await getDatabase().query(
-      `SELECT id, nickname, login, password, email, level, exp, online, money, donate,
+      `SELECT id, nickname, login, password, email, cabinet_role role, level, exp, online, money, donate,
               premium_time_left, faction_id, faction_level, playing_time, reg_date, banned
        FROM ugta_players WHERE login = ? LIMIT 1`,
       [login],
