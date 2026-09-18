@@ -42,7 +42,7 @@ export default async function handler(request, response) {
       db.query('SELECT id, hid, owner, sale_state, meter_type FROM ugta_viphouses WHERE owner=? ORDER BY id', [player.id]),
       db.query('SELECT id, business_id, name, balance, payment_date, weekly_profit FROM ugta_businesses WHERE owner_id=? ORDER BY id', [player.id]),
     ]);
-    player.profile_version = 2;
+    player.profile_version = 3;
     player.vehicles = vehicles;
     player.apartments = [...apartments, ...vipHouses];
     player.businesses = businesses;

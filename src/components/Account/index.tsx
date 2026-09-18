@@ -103,7 +103,8 @@ const roleLabel: Record<PlayerRole, string> = {
   admin: 'АДМІНІСТРАТОР',
 };
 const playerStorageKey = 'prime-account-session';
-const currentProfileVersion = 2;
+// Оновлення структури профілю мають скидати стару кешовану сесію.
+const currentProfileVersion = 3;
 
 function loadPlayer(): Player | null {
   try {
