@@ -36,14 +36,16 @@ export default async function handler(request, response) {
     if (!player || player.banned || player.password !== password) {
       return json(response, 401, { error: 'Неправильний логін або пароль' });
     }
-    const [[vehicles], [apartments], [vipHouses]] = await Promise.all([
+    const [[vehicles], [apartments], [vipHouses], [businesses]] = await Promise.all([
       db.query("SELECT id, model, health, fuel, mileage, number_plate, creation_date FROM ugta_vehicles WHERE owner_pid=? AND (deleted IS NULL OR deleted=0) ORDER BY id", [`p:${player.id}`]),
       db.query('SELECT id, number, meter_type, sale_state, paid_days, time_to_pay, paid_upgrade FROM ugta_apartments WHERE user_id=? ORDER BY number', [player.id]),
       db.query('SELECT id, hid, owner, sale_state, meter_type FROM ugta_viphouses WHERE owner=? ORDER BY id', [player.id]),
+      db.query('SELECT id, business_id, name, balance, payment_date, weekly_profit FROM ugta_businesses WHERE owner_id=? ORDER BY id', [player.id]),
     ]);
     player.profile_version = 2;
     player.vehicles = vehicles;
     player.apartments = [...apartments, ...vipHouses];
+    player.businesses = businesses;
     player.role = await getPlayerRole(db, player.id);
     const { password: _password, ...safePlayer } = player;
     return json(response, 200, { player: safePlayer });

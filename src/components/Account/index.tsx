@@ -1,5 +1,5 @@
 import { FormEvent, useState } from 'react';
-import { ArrowLeft, CalendarDays, CarFront, Coins, Crown, HeartPulse, Home, LogIn, LogOut, Mail, ShieldCheck, Star, UserRound, Wallet } from 'lucide-react';
+import { ArrowLeft, BriefcaseBusiness, CalendarDays, CarFront, Coins, Crown, Home, LogIn, LogOut, Mail, ShieldCheck, UserRound, Wallet } from 'lucide-react';
 import '../../styles/account-details.css';
 import { Brand } from '../ui';
 import AdminPanel from './AdminPanel';
@@ -7,6 +7,7 @@ import AdminPanel from './AdminPanel';
 type PlayerRole = 'user' | 'moderator' | 'admin';
 type Vehicle = { id: number; model: number; health?: number; fuel?: number; mileage?: number; number_plate?: string | null; creation_date?: number | null };
 type Apartment = { id: number; number?: number; hid?: string; owner?: number; meter_type?: number; sale_state?: number; paid_days?: number; time_to_pay?: number; paid_upgrade?: number };
+type Business = { id: number; business_id?: number; name?: string | null; balance?: number; payment_date?: number | null; weekly_profit?: number };
 type Player = {
   profile_version?: number;
   id: number;
@@ -66,12 +67,12 @@ type Player = {
   vehicles_count?: number;
   vehicles?: Vehicle[];
   apartments?: Apartment[];
+  businesses?: Business[];
 };
 
 const fmt = (value: number) => new Intl.NumberFormat('uk-UA').format(Number(value) || 0);
 const dateTime = (value?: number | null) => { const number = Number(value); if (!number) return 'Немає даних'; const date = new Date(number < 100000000000 ? number * 1000 : number); return Number.isNaN(date.getTime()) ? 'Немає даних' : new Intl.DateTimeFormat('uk-UA', { dateStyle:'medium', timeStyle:'short' }).format(date); };
 const timeLeft = (value?: number | null) => { const seconds = Number(value) || 0; if (seconds <= 0) return 'Неактивна'; const days = Math.floor(seconds / 86400); const hours = Math.floor((seconds % 86400) / 3600); return days ? `${days} дн. ${hours} год.` : `${hours} год.`; };
-const valueOrDash = (value?: number | string | null) => value === null || value === undefined || value === '' ? '—' : String(value);
 const skinImage = (skin?: number | null) => { const id = Number(skin); return Number.isInteger(id) && id > 0 ? `/assets/skins/130x160/${id}.png` : null; };
 const vehicleImage = (model?: number | null) => { const id = Number(model); return Number.isInteger(id) && id > 0 ? `/assets/vehicles/300x160/${id}.png` : null; };
 // Назви звірені з VEHICLE_CONFIG серверної збірки. Для моделей, яких немає
@@ -176,38 +177,26 @@ export default function Account() {
           <article className="account-detail-card"><Home/><span className="account-label">ЖИТЛО</span><strong>{fmt(player.housing_count || 0)}</strong><small>об’єктів нерухомості</small></article>
           <article className="account-detail-card"><CarFront/><span className="account-label">ТРАНСПОРТ</span><strong>{fmt(player.vehicles_count || 0)}</strong><small>{fmt(player.car_slots || 0)} доступних слотів</small></article>
           <article className="account-detail-card"><CalendarDays/><span className="account-label">ОСТАННІЙ ВХІД</span><strong className="account-date">{dateTime(player.last_enter_date || player.last_date)}</strong><small>останнє збереження профілю</small></article>
-          <article className="account-detail-card"><HeartPulse/><span className="account-label">СТАН ПЕРСОНАЖА</span><strong>{Math.round(Number(player.health) || 0)} HP</strong><small>{Math.round(Number(player.armor) || 0)} броні · {Math.round(Number(player.calories) || 0)}% ситості</small></article>
-          <article className="account-detail-card"><Star/><span className="account-label">РЕЙТИНГ</span><strong>{fmt(player.social_rating || 0)}</strong><small>соціальний рейтинг</small></article>
         </section>
         <section className="account-information">
           <div className="account-information-column"><h2>ПРОФІЛЬ ГРАВЦЯ</h2><dl>
             <dt>Реєстрація</dt><dd>{dateTime(player.reg_date)}</dd>
             <dt>День народження</dt><dd>{dateTime(player.birthday)}</dd>
-            <dt>Рідне місто</dt><dd>Місто #{valueOrDash(player.hometown)}</dd>
-            <dt>Місто старту</dt><dd>Місто #{valueOrDash(player.start_city)}</dd>
-            <dt>Нерухомість</dt><dd>{player.housing_numbers || 'Не зареєстровано'}</dd>
-            <dt>Стать / скін</dt><dd>{valueOrDash(player.gender)} / {valueOrDash(player.skin)}</dd>
             <dt>Телефон</dt><dd>{player.phone || 'Не вказано'}</dd>
             <dt>Баланс телефону</dt><dd>{fmt(player.phone_balance || 0)}</dd>
             <dt>Ігровий час</dt><dd>{fmt(player.playing_time || 0)} од.</dd>
             <dt>Сесій</dt><dd>{fmt(player.sessions_counter || 0)}</dd>
           </dl></div>
           <div className="account-information-column"><h2>ПРОГРЕС І СЕРВІСИ</h2><dl>
-            <dt>Фракція</dt><dd>{player.faction_id ? `#${player.faction_id}, рівень ${player.faction_level || 0}` : 'Не перебуває'}</dd>
-            <dt>Досвід фракції</dt><dd>{fmt(player.faction_exp || 0)}</dd>
-            <dt>Попередження фракції</dt><dd>{fmt(player.faction_warns || 0)}</dd>
-            <dt>Клан</dt><dd>{player.clan_id || 'Не перебуває'}</dd>
+            {player.faction_id ? <><dt>Фракція</dt><dd>#{player.faction_id}, рівень {player.faction_level || 0}</dd><dt>Досвід фракції</dt><dd>{fmt(player.faction_exp || 0)}</dd><dt>Попередження фракції</dt><dd>{fmt(player.faction_warns || 0)}</dd></> : null}
+            {player.clan_id ? <><dt>Клан</dt><dd>{player.clan_id}</dd><dt>Ранг клану</dt><dd>{fmt(player.clan_rank || 0)}</dd><dt>Досвід клану</dt><dd>{fmt(player.clan_exp || 0)}</dd></> : null}
             <dt>Робота</dt><dd>{player.job_class || player.job_id || 'Не обрано'}</dd>
-            <dt>Військовий рівень</dt><dd>{fmt(player.military_level || 0)} · {fmt(player.military_exp || 0)} XP</dd>
-            <dt>Преміум придбано</dt><dd>{fmt(player.premium_total || 0)} · операцій: {fmt(player.premium_transactions || 0)}</dd>
-            <dt>Донат за весь час</dt><dd>{fmt(player.donate_total || 0)} · операцій: {fmt(player.donate_transactions || 0)}</dd>
-            <dt>Підписка</dt><dd>{timeLeft(player.subscription_time_left)} · баланс: {fmt(player.subscription_total || 0)}</dd>
-            <dt>Бізнес-монети / кіно</dt><dd>{fmt(player.business_coins || 0)} / {fmt(player.cinema_balance || 0)}</dd>
           </dl></div>
         </section>
         <section className="account-assets-grid">
           <div className="account-asset-panel"><div className="account-asset-heading"><div><span className="account-label">ГАРАЖ</span><h2>МОЇ МАШИНИ</h2></div><strong>{fmt(player.vehicles?.length || 0)}</strong></div>{player.vehicles?.length ? <div className="account-vehicle-list">{player.vehicles.map(vehicle => <article className="account-vehicle-card" key={vehicle.id}>{vehicleImage(vehicle.model) ? <img src={vehicleImage(vehicle.model)!} alt={vehicleName(vehicle.model)}/> : <div className="account-vehicle-placeholder"><CarFront/></div>}<div><strong>{vehicleName(vehicle.model)}</strong><small>ID моделі: {vehicle.model}</small><small>Номер: {vehicle.number_plate || 'Не встановлено'}</small><small>Стан: {Math.round(Number(vehicle.health) || 0)} · Паливо: {Math.round(Number(vehicle.fuel) || 0)}%</small><small>Пробіг: {fmt(vehicle.mileage || 0)} км</small></div></article>)}</div> : <p className="account-empty-assets">У власності немає зареєстрованих машин.</p>}</div>
           <div className="account-asset-panel"><div className="account-asset-heading"><div><span className="account-label">НЕРУХОМІСТЬ</span><h2>МОЄ ЖИТЛО</h2></div><strong>{fmt(player.apartments?.length || player.housing_count || 0)}</strong></div>{player.apartments?.length ? <div className="account-housing-list">{player.apartments.map(apartment => <article className="account-housing-card" key={`${apartment.hid || apartment.number}-${apartment.id}`}><Home/><div><strong>{housingName(apartment.hid, apartment.number)}</strong>{apartment.hid ? <small>Власник ID: {apartment.owner}</small> : <><small>Оплачена до: {dateTime(apartment.time_to_pay)}</small><small>Оплачено днів: {fmt(apartment.paid_days || 0)} · покращення: {fmt(apartment.paid_upgrade || 0)}</small></>}</div></article>)}</div> : <p className="account-empty-assets">Зареєстрованої нерухомості немає.</p>}</div>
+          <div className="account-asset-panel"><div className="account-asset-heading"><div><span className="account-label">ВЛАСНІСТЬ</span><h2>МОЇ БІЗНЕСИ</h2></div><strong>{fmt(player.businesses?.length || 0)}</strong></div>{player.businesses?.length ? <div className="account-business-list">{player.businesses.map(business => <article className="account-business-card" key={business.id}><BriefcaseBusiness/><div><strong>{business.name || `Бізнес #${business.business_id || business.id}`}</strong><small>ID бізнесу: {business.business_id || business.id}</small><small>Баланс: {fmt(business.balance || 0)} ₴</small>{business.weekly_profit ? <small>Тижневий прибуток: {fmt(business.weekly_profit)} ₴</small> : null}</div></article>)}</div> : <p className="account-empty-assets">Зареєстрованих бізнесів немає.</p>}</div>
         </section>
         {player.role === 'admin' && <><section className="account-admin-panel"><div><p className="eyebrow"><span/> ADMIN CONTROL</p><h2>ПАНЕЛЬ АДМІНІСТРАТОРА</h2><p>Новини, SEO-теги та налаштування сайту керуються з цього розділу й зберігаються в базі даних.</p></div><div className="account-admin-roles"><div><strong>ADMIN</strong><span>повний доступ</span></div><div><strong>MODERATOR</strong><span>модерація</span></div><div><strong>USER</strong><span>базовий доступ</span></div></div></section><AdminPanel actorId={player.id}/></>}
         <a href="/" className="account-home"><ArrowLeft size={16}/> НА ГОЛОВНУ</a>

@@ -27,6 +27,7 @@
 .account-vehicle-placeholder{width:105px;height:76px;display:grid;place-items:center;color:#d6a84b}
 .account-housing-list{display:grid;gap:10px}
 .account-housing-card{display:flex;align-items:center;gap:12px;border:1px solid #ffffff12;background:#0b1117;padding:14px}
+.account-business-list{display:grid;gap:8px}.account-business-card{display:flex;align-items:center;gap:12px;border:1px solid #ffffff12;background:#0b1117;padding:14px}.account-business-card>svg{color:#d6a84b;flex-shrink:0}.account-business-card>div{display:grid;gap:4px;min-width:0}.account-business-card strong{font-size:.82rem;color:#e8e2d4}.account-business-card small{font-size:.68rem;color:#89929a}
 .account-housing-card>svg{width:20px;height:20px;color:#d6a84b;flex:none}
 .account-housing-card>div{display:grid;gap:5px;min-width:0}
 .account-empty-assets{color:#89929a;font-size:.78rem;line-height:1.7;margin:25px 0 8px}
