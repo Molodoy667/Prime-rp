@@ -74,6 +74,28 @@ const timeLeft = (value?: number | null) => { const seconds = Number(value) || 0
 const valueOrDash = (value?: number | string | null) => value === null || value === undefined || value === '' ? '—' : String(value);
 const skinImage = (skin?: number | null) => { const id = Number(skin); return Number.isInteger(id) && id > 0 ? `/assets/skins/130x160/${id}.png` : null; };
 const vehicleImage = (model?: number | null) => { const id = Number(model); return Number.isInteger(id) && id > 0 ? `/assets/vehicles/300x160/${id}.png` : null; };
+// Назви звірені з VEHICLE_CONFIG серверної збірки. Для моделей, яких немає
+// у конфігу, залишаємо ID, щоб не показувати вигадану марку.
+const vehicleNames: Record<number, string> = {
+  403: 'Linerunner', 480: 'Comet', 526: 'Fortune', 571: 'Kart', 576: 'Tornado',
+  580: 'Porsche Panamera', 596: 'Police LS', 6535: 'Mercedes-AMG G63 2022',
+  6580: 'Audi RS7', 6585: 'BMW X5 Competition', 6595: 'BMW X6M (F96)',
+  6606: 'BMW M5 CS', 6611: 'Zeekr 001', 6630: 'FIAT 2107',
+  6637: 'Mercedes-Benz E63s', 6650: 'Audi e-tron GT', 6657: 'Porsche Taycan Turbo S',
+  6667: 'Pagani Huayra', 6679: 'Porsche Carrera GT', 6683: 'Mercedes-Benz Actros L',
+  6692: 'Mercedes-Benz W221 AMG W12', 6699: 'Lamborghini Terzo',
+  6700: 'Aston Martin Valhalla', 6702: 'Audi RS3', 6704: 'Tesla Roadster',
+};
+const vehicleName = (model?: number | null) => {
+  const id = Number(model);
+  return vehicleNames[id] || `Транспорт #${Number.isFinite(id) ? id : '—'}`;
+};
+const housingName = (hid?: string, number?: number) => {
+  const value = String(hid || '');
+  const match = value.match(/^(villa|cottage)(\d+)$/i);
+  if (match) return `${match[1].toLowerCase() === 'villa' ? 'Вілла' : 'Котедж'} №${match[2]}`;
+  return number ? `Квартира №${number}` : 'Нерухомість';
+};
 const roleLabel: Record<PlayerRole, string> = {
   user: 'ЗВИЧАЙНИЙ КОРИСТУВАЧ',
   moderator: 'МОДЕРАТОР',
@@ -184,8 +206,8 @@ export default function Account() {
           </dl></div>
         </section>
         <section className="account-assets-grid">
-          <div className="account-asset-panel"><div className="account-asset-heading"><div><span className="account-label">ГАРАЖ</span><h2>МОЇ МАШИНИ</h2></div><strong>{fmt(player.vehicles?.length || 0)}</strong></div>{player.vehicles?.length ? <div className="account-vehicle-list">{player.vehicles.map(vehicle => <article className="account-vehicle-card" key={vehicle.id}>{vehicleImage(vehicle.model) ? <img src={vehicleImage(vehicle.model)!} alt={`Модель ${vehicle.model}`}/> : <div className="account-vehicle-placeholder"><CarFront/></div>}<div><strong>Модель #{vehicle.model}</strong><small>Номер: {vehicle.number_plate || 'Не встановлено'}</small><small>Стан: {Math.round(Number(vehicle.health) || 0)} · Паливо: {Math.round(Number(vehicle.fuel) || 0)}%</small><small>Пробіг: {fmt(vehicle.mileage || 0)} км</small></div></article>)}</div> : <p className="account-empty-assets">У власності немає зареєстрованих машин.</p>}</div>
-          <div className="account-asset-panel"><div className="account-asset-heading"><div><span className="account-label">НЕРУХОМІСТЬ</span><h2>МОЄ ЖИТЛО</h2></div><strong>{fmt(player.apartments?.length || player.housing_count || 0)}</strong></div>{player.apartments?.length ? <div className="account-housing-list">{player.apartments.map(apartment => <article className="account-housing-card" key={`${apartment.hid || apartment.number}-${apartment.id}`}><Home/><div><strong>{apartment.hid ? `Будинок ${apartment.hid}` : `Квартира №${apartment.number}`}</strong>{apartment.hid ? <small>Власник ID: {apartment.owner}</small> : <><small>Оплачена до: {dateTime(apartment.time_to_pay)}</small><small>Оплачено днів: {fmt(apartment.paid_days || 0)} · покращення: {fmt(apartment.paid_upgrade || 0)}</small></>}</div></article>)}</div> : <p className="account-empty-assets">Зареєстрованої нерухомості немає.</p>}</div>
+          <div className="account-asset-panel"><div className="account-asset-heading"><div><span className="account-label">ГАРАЖ</span><h2>МОЇ МАШИНИ</h2></div><strong>{fmt(player.vehicles?.length || 0)}</strong></div>{player.vehicles?.length ? <div className="account-vehicle-list">{player.vehicles.map(vehicle => <article className="account-vehicle-card" key={vehicle.id}>{vehicleImage(vehicle.model) ? <img src={vehicleImage(vehicle.model)!} alt={vehicleName(vehicle.model)}/> : <div className="account-vehicle-placeholder"><CarFront/></div>}<div><strong>{vehicleName(vehicle.model)}</strong><small>ID моделі: {vehicle.model}</small><small>Номер: {vehicle.number_plate || 'Не встановлено'}</small><small>Стан: {Math.round(Number(vehicle.health) || 0)} · Паливо: {Math.round(Number(vehicle.fuel) || 0)}%</small><small>Пробіг: {fmt(vehicle.mileage || 0)} км</small></div></article>)}</div> : <p className="account-empty-assets">У власності немає зареєстрованих машин.</p>}</div>
+          <div className="account-asset-panel"><div className="account-asset-heading"><div><span className="account-label">НЕРУХОМІСТЬ</span><h2>МОЄ ЖИТЛО</h2></div><strong>{fmt(player.apartments?.length || player.housing_count || 0)}</strong></div>{player.apartments?.length ? <div className="account-housing-list">{player.apartments.map(apartment => <article className="account-housing-card" key={`${apartment.hid || apartment.number}-${apartment.id}`}><Home/><div><strong>{housingName(apartment.hid, apartment.number)}</strong>{apartment.hid ? <small>Власник ID: {apartment.owner}</small> : <><small>Оплачена до: {dateTime(apartment.time_to_pay)}</small><small>Оплачено днів: {fmt(apartment.paid_days || 0)} · покращення: {fmt(apartment.paid_upgrade || 0)}</small></>}</div></article>)}</div> : <p className="account-empty-assets">Зареєстрованої нерухомості немає.</p>}</div>
         </section>
         {player.role === 'admin' && <><section className="account-admin-panel"><div><p className="eyebrow"><span/> ADMIN CONTROL</p><h2>ПАНЕЛЬ АДМІНІСТРАТОРА</h2><p>Новини, SEO-теги та налаштування сайту керуються з цього розділу й зберігаються в базі даних.</p></div><div className="account-admin-roles"><div><strong>ADMIN</strong><span>повний доступ</span></div><div><strong>MODERATOR</strong><span>модерація</span></div><div><strong>USER</strong><span>базовий доступ</span></div></div></section><AdminPanel actorId={player.id}/></>}
         <a href="/" className="account-home"><ArrowLeft size={16}/> НА ГОЛОВНУ</a>
