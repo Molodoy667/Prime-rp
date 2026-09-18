@@ -1,5 +1,6 @@
 import { FormEvent, useState } from 'react';
-import { ArrowLeft, Coins, LogIn, LogOut, Mail, ShieldCheck, UserRound, Wallet } from 'lucide-react';
+import { ArrowLeft, CalendarDays, CarFront, Coins, Crown, HeartPulse, Home, LogIn, LogOut, Mail, ShieldCheck, Star, UserRound, Wallet } from 'lucide-react';
+import '../../styles/account-details.css';
 import { Brand } from '../ui';
 import AdminPanel from './AdminPanel';
 
@@ -15,9 +16,57 @@ type Player = {
   online: number;
   money: number;
   donate: number;
+  premium_time_left?: number | null;
+  premium_total?: number;
+  premium_transactions?: number;
+  premium_last_date?: number;
+  donate_total?: number;
+  donate_transactions?: number;
+  donate_last_date?: number;
+  health?: number;
+  calories?: number;
+  armor?: number;
+  phone?: string | null;
+  phone_balance?: number;
+  start_city?: number;
+  hometown?: number;
+  gender?: number;
+  skin?: number | null;
+  car_slots?: number;
+  social_rating?: number;
+  faction_id?: number;
+  faction_level?: number;
+  faction_exp?: number;
+  faction_warns?: number;
+  clan_id?: string | null;
+  clan_exp?: number;
+  clan_rank?: number;
+  clan_role?: number;
+  job_class?: string | null;
+  job_id?: string | null;
+  military_level?: number;
+  military_exp?: number;
+  subscription_time_left?: number;
+  subscription_total?: number;
+  subscription_transactions?: number;
+  subscription_last_date?: number;
+  business_coins?: number;
+  cinema_balance?: number;
+  playing_time?: number;
+  reg_date?: number;
+  last_date?: number;
+  last_enter_date?: number;
+  birthday?: number;
+  sessions_counter?: number;
+  housing_count?: number;
+  housing_numbers?: string | null;
+  vehicles_count?: number;
 };
 
 const fmt = (value: number) => new Intl.NumberFormat('uk-UA').format(Number(value) || 0);
+const dateTime = (value?: number | null) => { const number = Number(value); if (!number) return 'Немає даних'; const date = new Date(number < 100000000000 ? number * 1000 : number); return Number.isNaN(date.getTime()) ? 'Немає даних' : new Intl.DateTimeFormat('uk-UA', { dateStyle:'medium', timeStyle:'short' }).format(date); };
+const timeLeft = (value?: number | null) => { const seconds = Number(value) || 0; if (seconds <= 0) return 'Неактивна'; const days = Math.floor(seconds / 86400); const hours = Math.floor((seconds % 86400) / 3600); return days ? `${days} дн. ${hours} год.` : `${hours} год.`; };
+const valueOrDash = (value?: number | string | null) => value === null || value === undefined || value === '' ? '—' : String(value);
 const roleLabel: Record<PlayerRole, string> = {
   user: 'ЗВИЧАЙНИЙ КОРИСТУВАЧ',
   moderator: 'МОДЕРАТОР',
@@ -91,6 +140,40 @@ export default function Account() {
           <article className="account-card"><Wallet/><span className="account-label">ІГРОВІ ГРОШІ</span><strong>{fmt(player.money)} ₴</strong></article>
           <article className="account-card"><Coins/><span className="account-label">ДОНАТ-БАЛАНС</span><strong>{fmt(player.donate)}</strong></article>
           <article className="account-card"><ShieldCheck/><span className="account-label">ДОСВІД</span><strong>{fmt(player.exp)}</strong><small>до наступного рівня</small></article>
+        </section>
+        <section className="account-detail-grid">
+          <article className="account-detail-card"><Crown/><span className="account-label">ПРЕМІУМ</span><strong>{timeLeft(player.premium_time_left)}</strong><small>до завершення підписки</small></article>
+          <article className="account-detail-card"><Home/><span className="account-label">ЖИТЛО</span><strong>{fmt(player.housing_count || 0)}</strong><small>об’єктів нерухомості</small></article>
+          <article className="account-detail-card"><CarFront/><span className="account-label">ТРАНСПОРТ</span><strong>{fmt(player.vehicles_count || 0)}</strong><small>{fmt(player.car_slots || 0)} доступних слотів</small></article>
+          <article className="account-detail-card"><CalendarDays/><span className="account-label">ОСТАННІЙ ВХІД</span><strong className="account-date">{dateTime(player.last_enter_date || player.last_date)}</strong><small>останнє збереження профілю</small></article>
+          <article className="account-detail-card"><HeartPulse/><span className="account-label">СТАН ПЕРСОНАЖА</span><strong>{Math.round(Number(player.health) || 0)} HP</strong><small>{Math.round(Number(player.armor) || 0)} броні · {Math.round(Number(player.calories) || 0)}% ситості</small></article>
+          <article className="account-detail-card"><Star/><span className="account-label">РЕЙТИНГ</span><strong>{fmt(player.social_rating || 0)}</strong><small>соціальний рейтинг</small></article>
+        </section>
+        <section className="account-information">
+          <div className="account-information-column"><h2>ПРОФІЛЬ ГРАВЦЯ</h2><dl>
+            <dt>Реєстрація</dt><dd>{dateTime(player.reg_date)}</dd>
+            <dt>День народження</dt><dd>{dateTime(player.birthday)}</dd>
+            <dt>Рідне місто</dt><dd>Місто #{valueOrDash(player.hometown)}</dd>
+            <dt>Місто старту</dt><dd>Місто #{valueOrDash(player.start_city)}</dd>
+            <dt>Нерухомість</dt><dd>{player.housing_numbers || 'Не зареєстровано'}</dd>
+            <dt>Стать / скін</dt><dd>{valueOrDash(player.gender)} / {valueOrDash(player.skin)}</dd>
+            <dt>Телефон</dt><dd>{player.phone || 'Не вказано'}</dd>
+            <dt>Баланс телефону</dt><dd>{fmt(player.phone_balance || 0)}</dd>
+            <dt>Ігровий час</dt><dd>{fmt(player.playing_time || 0)} од.</dd>
+            <dt>Сесій</dt><dd>{fmt(player.sessions_counter || 0)}</dd>
+          </dl></div>
+          <div className="account-information-column"><h2>ПРОГРЕС І СЕРВІСИ</h2><dl>
+            <dt>Фракція</dt><dd>{player.faction_id ? `#${player.faction_id}, рівень ${player.faction_level || 0}` : 'Не перебуває'}</dd>
+            <dt>Досвід фракції</dt><dd>{fmt(player.faction_exp || 0)}</dd>
+            <dt>Попередження фракції</dt><dd>{fmt(player.faction_warns || 0)}</dd>
+            <dt>Клан</dt><dd>{player.clan_id || 'Не перебуває'}</dd>
+            <dt>Робота</dt><dd>{player.job_class || player.job_id || 'Не обрано'}</dd>
+            <dt>Військовий рівень</dt><dd>{fmt(player.military_level || 0)} · {fmt(player.military_exp || 0)} XP</dd>
+            <dt>Преміум придбано</dt><dd>{fmt(player.premium_total || 0)} · операцій: {fmt(player.premium_transactions || 0)}</dd>
+            <dt>Донат за весь час</dt><dd>{fmt(player.donate_total || 0)} · операцій: {fmt(player.donate_transactions || 0)}</dd>
+            <dt>Підписка</dt><dd>{timeLeft(player.subscription_time_left)} · баланс: {fmt(player.subscription_total || 0)}</dd>
+            <dt>Бізнес-монети / кіно</dt><dd>{fmt(player.business_coins || 0)} / {fmt(player.cinema_balance || 0)}</dd>
+          </dl></div>
         </section>
         {player.role === 'admin' && <><section className="account-admin-panel"><div><p className="eyebrow"><span/> ADMIN CONTROL</p><h2>ПАНЕЛЬ АДМІНІСТРАТОРА</h2><p>Новини, SEO-теги та налаштування сайту керуються з цього розділу й зберігаються в базі даних.</p></div><div className="account-admin-roles"><div><strong>ADMIN</strong><span>повний доступ</span></div><div><strong>MODERATOR</strong><span>модерація</span></div><div><strong>USER</strong><span>базовий доступ</span></div></div></section><AdminPanel actorId={player.id}/></>}
         <a href="/" className="account-home"><ArrowLeft size={16}/> НА ГОЛОВНУ</a>

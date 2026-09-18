@@ -23,6 +23,8 @@ CREATE TABLE IF NOT EXISTS `site_seo_pages` (
   `description` VARCHAR(320) NOT NULL DEFAULT '',
   `keywords` VARCHAR(500) NULL,
   `og_image` VARCHAR(500) NULL,
+  `canonical_url` VARCHAR(500) NULL,
+  `robots` VARCHAR(120) NOT NULL DEFAULT 'index,follow',
   `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`path`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -42,13 +44,13 @@ INSERT IGNORE INTO `site_news` (`slug`,`title`,`category`,`body`,`image_url`,`is
 ('development','РОЗРОБКА ПРОЄКТУ','ЩОДЕННИК','Ця рубрика призначена для новин команди розробки. Офіційні записи з’являться після підключення редакції. Поточний матеріал демонструє оформлення і не підтверджує конкретних оновлень.','/assets/vehicle-1600.webp',1,3);
 
 INSERT INTO `site_seo_pages` (`path`,`title`,`description`,`keywords`) VALUES
-('/', 'PRIME RP — Україна. Твоя історія. Твої правила.', 'PRIME RP — український MTA RolePlay-проєкт. Відкрий свій світ: українські міста, кар’єра, автомобілі та власна історія.', 'PRIME RP, MTA RolePlay, український MTA, GTA RolePlay Україна'),
-('/forum', 'Форум PRIME RP — спільнота гравців', 'Офіційний форум PRIME RP: новини, підтримка, обговорення та пропозиції гравців.', 'PRIME RP форум, спільнота, підтримка'),
-('/account', 'Особистий кабінет PRIME RP', 'Увійдіть до особистого кабінету PRIME RP, щоб переглянути свій ігровий профіль та статистику.', 'PRIME RP кабінет, профіль гравця'),
-('/rules', 'Правила PRIME RP', 'Офіційні правила спільноти та ігрового проєкту PRIME RP.', 'правила PRIME RP'),
-('/terms', 'Умови користування — PRIME RP', 'Умови користування сайтом і сервісами PRIME RP.', 'умови PRIME RP'),
-('/privacy', 'Політика конфіденційності — PRIME RP', 'Політика конфіденційності офіційного сайту PRIME RP.', 'конфіденційність PRIME RP')
-ON DUPLICATE KEY UPDATE `title`=VALUES(`title`),`description`=VALUES(`description`),`keywords`=VALUES(`keywords`);
+('/', 'PRIME RP — Ера твого рольового життя в Україні', 'PRIME RP — український MTA RolePlay-проєкт, де кожен гравець створює власну історію. Обирай професію, розвивай персонажа, відкривай міста та живи своєю епохою PRIME.', 'PRIME RP, Era Prime, Ера PRIME, MTA RolePlay Україна, GTA RP Україна, український сервер MTA, рольова гра, онлайн гра, ігровий сервер', 'https://prime-rp.store/assets/hero-1600.webp', 'https://prime-rp.store/', 'index,follow'),
+('/forum', 'Форум PRIME RP — спільнота, новини та підтримка гравців', 'Офіційний форум PRIME RP: обговорюй новини проєкту, став запитання, знаходь однодумців і отримуй допомогу від спільноти Era Prime.', 'форум PRIME RP, Era Prime форум, спільнота MTA, новини PRIME RP, підтримка гравців, обговорення GTA RP, українська RolePlay спільнота', 'https://prime-rp.store/assets/city-1600.webp', 'https://prime-rp.store/forum', 'index,follow'),
+('/account', 'Особистий кабінет PRIME RP — профіль та прогрес гравця', 'Увійди до особистого кабінету PRIME RP, щоб переглянути свій профіль, рівень, статистику, ігрові ресурси та доступні можливості Era Prime.', 'особистий кабінет PRIME RP, профіль гравця, статистика MTA, прогрес персонажа, Era Prime акаунт, ігровий профіль', 'https://prime-rp.store/assets/official-brand-original.webp', 'https://prime-rp.store/account', 'noindex,nofollow'),
+('/rules', 'Правила PRIME RP — чесна гра та рольова атмосфера', 'Ознайомся з офіційними правилами PRIME RP: повага до гравців, чесна гра, рольова поведінка та безпечна участь у світі Era Prime.', 'правила PRIME RP, правила MTA RolePlay, правила GTA RP, чесна гра, рольова гра Україна, правила сервера', 'https://prime-rp.store/assets/vehicle-1600.webp', 'https://prime-rp.store/rules', 'index,follow'),
+('/terms', 'Умови користування PRIME RP — правила сайту та сервісів', 'Офіційні умови користування сайтом PRIME RP, особистим кабінетом, форумом, лаунчером та іншими сервісами ігрового проєкту Era Prime.', 'умови користування PRIME RP, правила сайту, умови Era Prime, MTA RolePlay сервіс, користування ігровим сайтом', 'https://prime-rp.store/assets/hero-1600.webp', 'https://prime-rp.store/terms', 'index,follow'),
+('/privacy', 'Політика конфіденційності PRIME RP — захист даних', 'Дізнайся, як PRIME RP обробляє технічні дані, захищає приватність відвідувачів і забезпечує безпечну роботу сервісів Era Prime.', 'політика конфіденційності PRIME RP, захист персональних даних, приватність MTA, безпека акаунта, Era Prime privacy', 'https://prime-rp.store/assets/city-1600.webp', 'https://prime-rp.store/privacy', 'index,follow')
+ON DUPLICATE KEY UPDATE `title`=VALUES(`title`),`description`=VALUES(`description`),`keywords`=VALUES(`keywords`),`og_image`=VALUES(`og_image`),`canonical_url`=VALUES(`canonical_url`),`robots`=VALUES(`robots`);
 
 INSERT IGNORE INTO `site_settings` (`section`,`setting_key`,`setting_value`,`value_type`) VALUES
 ('general','site_name','PRIME RP','text'),

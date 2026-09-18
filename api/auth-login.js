@@ -10,7 +10,19 @@ export default async function handler(request, response) {
   try {
     const [rows] = await getDatabase().query(
       `SELECT id, nickname, login, password, email, cabinet_role role, level, exp, online, money, donate,
-              premium_time_left, faction_id, faction_level, playing_time, reg_date, banned
+              premium_time_left, premium_total, premium_transactions, premium_last_date,
+              donate_total, donate_transactions, donate_last_date,
+              health, calories, armor, quests, BattlePass, phone, phone_balance,
+              start_city, hometown, gender, skin, car_slots, social_rating,
+              faction_id, faction_level, faction_exp, faction_warns,
+              clan_id, clan_exp, clan_rank, clan_role, job_class, job_id,
+              military_level, military_exp, subscription_time_left, subscription_total,
+              subscription_transactions, subscription_last_date, business_coins, cinema_balance,
+              playing_time, reg_date, last_date, last_enter_date, birthday, sessions_counter,
+              (SELECT COUNT(*) FROM ugta_apartments a WHERE a.user_id = ugta_players.id) housing_count,
+              (SELECT GROUP_CONCAT(a.number ORDER BY a.number SEPARATOR ', ') FROM ugta_apartments a WHERE a.user_id = ugta_players.id) housing_numbers,
+              (SELECT COUNT(*) FROM ugta_vehicles v WHERE v.owner_pid = CAST(ugta_players.id AS CHAR) AND (v.deleted IS NULL OR v.deleted = 0)) vehicles_count,
+              banned
        FROM ugta_players WHERE login = ? LIMIT 1`,
       [login],
     );
