@@ -17,3 +17,4 @@ export async function getServers(signal?:AbortSignal):Promise<Server[]>{
  return [server,{id:'prime-2',name:'PRIME RP #2',subtitle:'Наступна глава',status:'soon',players:null,capacity:null,connectUrl:'#'}];
 }
 export const getNews=async(signal?:AbortSignal):Promise<NewsItem[]>=>{const data=await request<{news:NewsItem[]}>(siteConfig.newsApiUrl,signal);return Array.isArray(data.news)?data.news:[];};
+export const getSiteSettings=async(signal?:AbortSignal):Promise<Record<string,string>>=>{const data=await request<{settings?:Array<{settingKey?:string;settingValue?:string}>}>('/api/site-meta',signal);return Object.fromEntries((data.settings||[]).filter(item=>item.settingKey).map(item=>[item.settingKey!,String(item.settingValue||'')]));};
