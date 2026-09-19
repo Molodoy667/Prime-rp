@@ -11,13 +11,13 @@ export const mockNews:NewsItem[] = [
 ];
 // Geographic pins are approximate. Mykhailivka is deliberately unplaced until identified.
 export const cities:City[] = [
- {id:'kyiv',name:'Київ',lat:50.45,lon:30.52,labelPoint:{x:330,y:105},description:'Вогні великого міста. Мости над Дніпром. Твоя нова точка відліку.',image:'city',position:'50% 45%'},
- {id:'boryspil',name:'Бориспіль',lat:50.35,lon:30.95,labelPoint:{x:493,y:153},description:'Нові маршрути поруч зі столицею. Обери свій ритм і власний шлях.',image:'city',position:'80% 50%'},
- {id:'koncha-zaspa',name:'Конча-Заспа',lat:50.22,lon:30.60,labelPoint:{x:320,y:243},description:'Тихе передмістя, заміські дороги та простір для нової історії.',image:'city',position:'15% 65%'},
- {id:'mykhailivka',name:'Михайлівка',lat:null,lon:null,locationNote:'Точне розташування уточнюється: в Україні є кілька населених пунктів із цією назвою.',description:'Локація PRIME RP поза ритмом великого міста. Місце на географічній мапі буде уточнено.',image:'city',position:'10% 65%'},
- {id:'kharkiv',name:'Харків',lat:49.99,lon:36.23,labelPoint:{x:680,y:173},description:'Ритм мегаполіса, широкі проспекти та нові можливості.',image:'city',position:'90% 45%'},
- {id:'dnipro',name:'Дніпро',lat:48.46,lon:35.05,labelPoint:{x:632,y:302},description:'Набережна, вечірні маршрути та індустріальний характер.',image:'city',position:'65% 65%'},
- {id:'romania',name:'Румунія',lat:45.94,lon:24.96,country:'Румунія',labelPoint:{x:180,y:447},description:'Ще один напрямок для твоїх подорожей. Відкрий нову країну у світі PRIME RP.',image:'vehicle',position:'65% 45%',locationNote:'Позначено країну, а не конкретне місто. Ілюстрація передає атмосферу подорожей.'}
+ {id:'kyiv',name:'Київ',lat:50.45,lon:30.52,labelPoint:{x:330,y:105},description:'Вогні великого міста. Мости над Дніпром. Твоя нова точка відліку.',image:'/assets/locations/kyiv.webp',position:'50% 45%'},
+ {id:'boryspil',name:'Бориспіль',lat:50.35,lon:30.95,labelPoint:{x:493,y:153},description:'Нові маршрути поруч зі столицею. Обери свій ритм і власний шлях.',image:'/assets/locations/boryspil.webp',position:'80% 50%'},
+ {id:'koncha-zaspa',name:'Конча-Заспа',lat:50.22,lon:30.60,labelPoint:{x:320,y:243},description:'Тихе передмістя, заміські дороги та простір для нової історії.',image:'/assets/locations/koncha-zaspa.webp',position:'15% 65%'},
+ {id:'mykhailivka',name:'Михайлівка',lat:null,lon:null,locationNote:'Точне розташування уточнюється: в Україні є кілька населених пунктів із цією назвою.',description:'Локація PRIME RP поза ритмом великого міста. Місце на географічній мапі буде уточнено.',image:'/assets/locations/mykhailivka.webp',position:'10% 65%'},
+ {id:'kharkiv',name:'Харків',lat:49.99,lon:36.23,labelPoint:{x:680,y:173},description:'Ритм мегаполіса, широкі проспекти та нові можливості.',image:'/assets/locations/kharkiv.webp',position:'90% 45%'},
+ {id:'dnipro',name:'Дніпро',lat:48.46,lon:35.05,labelPoint:{x:632,y:302},description:'Набережна, вечірні маршрути та індустріальний характер.',image:'/assets/locations/dnipro.webp',position:'65% 65%'},
+ {id:'romania',name:'Румунія',lat:45.94,lon:24.96,country:'Румунія',labelPoint:{x:180,y:447},description:'Ще один напрямок для твоїх подорожей. Відкрий нову країну у світі PRIME RP.',image:'/assets/locations/romania.webp',position:'65% 45%',locationNote:'Позначено країну, а не конкретне місто. Ілюстрація передає атмосферу подорожей.'}
 ];
 export const careers = [
  ['Поліція','ЗАХИЩАЙ СВОЄ МІСТО','Патрулюй вулиці, працюй у команді та стань тим, кому довіряють.'],

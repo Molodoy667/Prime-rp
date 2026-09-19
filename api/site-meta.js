@@ -1,6 +1,11 @@
 import { getDatabase, json } from './_db.js';
 import { requireAdmin } from './access-control.js';
 
+const defaultSeo = [
+  { path:'/wiki', title:'Вікі PRIME RP — скіни та моделі машин', description:'Каталог скінів і моделей машин PRIME RP з ID, назвами та зображеннями для гравців.', keywords:'PRIME RP, вікі, скіни GTA, моделі машин GTA, MTA RolePlay, Era Prime', ogImage:'https://prime-rp.store/assets/locations/kyiv.webp', canonicalUrl:'https://prime-rp.store/wiki', robots:'index,follow' },
+  { path:'/donate', title:'Донат-магазин PRIME RP — можливості для гравців', description:'Офіційний донат-магазин PRIME RP: PRIME-бонуси, підписки та додаткові можливості для підтримки проєкту.', keywords:'донат PRIME RP, магазин PRIME RP, підписка MTA, Era Prime бонуси', ogImage:'https://prime-rp.store/assets/official-brand-original.webp', canonicalUrl:'https://prime-rp.store/donate', robots:'index,follow' },
+];
+
 export default async function handler(request, response) {
   try {
     const db = getDatabase();
@@ -8,7 +13,8 @@ export default async function handler(request, response) {
       const admin = request.query?.admin === '1';
       if (admin && !(await requireAdmin(db, request.query?.actorId))) return json(response, 403, { error: 'Недостаточно прав' });
       const path = String(request.query?.path || '').trim();
-      const [seo] = await db.query(path ? 'SELECT path,title,description,keywords,og_image ogImage,canonical_url canonicalUrl,robots FROM site_seo_pages WHERE path=?' : 'SELECT path,title,description,keywords,og_image ogImage,canonical_url canonicalUrl,robots FROM site_seo_pages ORDER BY path', path ? [path] : []);
+      const [rows] = await db.query(path ? 'SELECT path,title,description,keywords,og_image ogImage,canonical_url canonicalUrl,robots FROM site_seo_pages WHERE path=?' : 'SELECT path,title,description,keywords,og_image ogImage,canonical_url canonicalUrl,robots FROM site_seo_pages ORDER BY path', path ? [path] : []);
+      const seo = admin && !path ? [...rows, ...defaultSeo.filter(item => !rows.some(row => row.path === item.path))] : rows;
       const [settings] = await db.query(admin ? 'SELECT section,setting_key settingKey,setting_value settingValue,value_type valueType FROM site_settings ORDER BY section,setting_key' : "SELECT section,setting_key settingKey,setting_value settingValue,value_type valueType FROM site_settings WHERE section <> 'access' ORDER BY section,setting_key");
       return json(response, 200, { seo, settings });
     }

@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 type SeoPage = { title:string; description:string; keywords?:string; ogImage?:string; canonicalUrl?:string; robots?:string };
 const pages: Record<string,SeoPage> = {
   '/wiki': { title: 'Вікі PRIME RP — скіни та моделі машин', description: 'Каталог скінів і моделей машин PRIME RP з ID, назвами та зображеннями для гравців.', keywords: 'PRIME RP, вікі, скіни GTA, моделі машин GTA, MTA RolePlay, Era Prime' },
+  '/donate': { title: 'Донат-магазин PRIME RP — можливості для гравців', description: 'Офіційний донат-магазин PRIME RP: PRIME-бонуси, підписки та додаткові можливості для підтримки проєкту.', keywords: 'донат PRIME RP, магазин PRIME RP, підписка MTA, Era Prime бонуси' },
   '/forum': { title: 'Форум PRIME RP — спільнота гравців', description: 'Офіційний форум PRIME RP: новини, підтримка, обговорення та пропозиції гравців.' },
   '/account': { title: 'Особистий кабінет PRIME RP', description: 'Увійдіть до особистого кабінету PRIME RP, щоб переглянути свій ігровий профіль та статистику.' },
   '/rules': { title: 'Правила PRIME RP', description: 'Офіційні правила спільноти та ігрового проєкту PRIME RP.' },

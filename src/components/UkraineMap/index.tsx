@@ -3,7 +3,7 @@ import {motion} from 'framer-motion';
 import {MapPin,ArrowUpRight} from 'lucide-react';
 import {cities} from '../../data/content';
 import {ukrainePath,romaniaPath,projectCity} from '../../data/ukraine';
-import {Art,Reveal,SectionTitle} from '../ui';
+import {Reveal,SectionTitle} from '../ui';
 import {useParallax} from '../../hooks/useParallax';
 
 export default function UkraineMap(){
@@ -27,6 +27,6 @@ export default function UkraineMap(){
    <div className="map-location-list" aria-label="Усі локації">{cities.map(c=><button key={c.id} aria-pressed={selected.id===c.id} className={selected.id===c.id?'active':''} onClick={()=>setSelected(c)}>{c.name}{c.lat===null&&<span title="Місце на мапі уточнюється"> *</span>}</button>)}</div>
    <p className="map-footnote">* Михайлівка: розташування уточнюється. Географічні позначки приблизні.</p>
   </div>
-  <article className="city-preview" aria-live="polite"><div className="city-image"><Art name={selected.image} alt={`Концепт-ілюстрація для локації ${selected.name}, не ігровий скриншот`} style={{objectPosition:selected.position}}/><span>{selected.id==='romania'?'КРАЇНА':'ЛОКАЦІЯ PRIME'}</span></div><div className="city-content"><p className="gold-label"><MapPin size={14}/>{selected.country??'Україна'}</p><h3>{selected.name}</h3><p>{selected.description}</p>{selected.locationNote&&<p className="location-note">{selected.locationNote}</p>}<a className="text-link" href="#start">ТВОЯ ІСТОРІЯ ПОЧИНАЄТЬСЯ ТУТ<ArrowUpRight size={18}/></a></div></article></div>
+  <article className="city-preview" aria-live="polite"><div className="city-image"><img src={selected.image} alt={`Концепт-ілюстрація для локації ${selected.name}, не ігровий скриншот`} style={{objectPosition:selected.position}}/><span>{selected.id==='romania'?'КРАЇНА':'ЛОКАЦІЯ PRIME'}</span></div><div className="city-content"><p className="gold-label"><MapPin size={14}/>{selected.country??'Україна'}</p><h3>{selected.name}</h3><p>{selected.description}</p>{selected.locationNote&&<p className="location-note">{selected.locationNote}</p>}<a className="text-link" href="#start">ТВОЯ ІСТОРІЯ ПОЧИНАЄТЬСЯ ТУТ<ArrowUpRight size={18}/></a></div></article></div>
  </Reveal>
 }
