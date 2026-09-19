@@ -1,10 +1,16 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ArrowLeft, ArrowRight, CarFront, Search, UserRound } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CarFront, Gem, Search, UserRound } from 'lucide-react';
 import { SectionTitle } from '../ui';
 import { getVehicleName, skinIds, vehicleIds } from '../../data/catalog';
+import { getSkinName } from '../../data/skinNames';
+import { accessoryFiles } from '../../data/accessories';
 
-type WikiTab = 'skins' | 'vehicles';
+type WikiTab = 'skins' | 'vehicles' | 'accessories';
 const PAGE_SIZE = 10;
+
+function getAccessoryName(file: string) {
+  return file.replace(/\.png$/i, '').replace(/[_-]+/g, ' ').replace(/\b\w/g, letter => letter.toUpperCase());
+}
 
 export default function Wiki() {
   const [tab, setTab] = useState<WikiTab>('skins');
@@ -13,10 +19,15 @@ export default function Wiki() {
   const normalizedQuery = query.trim().toLocaleLowerCase('uk-UA');
   const skins = useMemo(() => skinIds.filter(id => !normalizedQuery || (`${id} скін ${id}`).toLocaleLowerCase('uk-UA').includes(normalizedQuery)), [normalizedQuery]);
   const vehicles = useMemo(() => vehicleIds.filter(id => !normalizedQuery || `${id} ${getVehicleName(id)}`.toLocaleLowerCase('uk-UA').includes(normalizedQuery)), [normalizedQuery]);
-  const visibleCount = tab === 'skins' ? skins.length : vehicles.length;
+  const accessories = useMemo(() => accessoryFiles.filter(file => !normalizedQuery || `${file} ${getAccessoryName(file)}`.toLocaleLowerCase('uk-UA').includes(normalizedQuery)), [normalizedQuery]);
+  const visibleCount = tab === 'skins' ? skins.length : tab === 'vehicles' ? vehicles.length : accessories.length;
   const pageCount = Math.max(1, Math.ceil(visibleCount / PAGE_SIZE));
   const currentPage = Math.min(page, pageCount);
-  const visibleItems = (tab === 'skins' ? skins : vehicles).slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+  const pageStart = (currentPage - 1) * PAGE_SIZE;
+  const pageEnd = currentPage * PAGE_SIZE;
+  const visibleSkins = skins.slice(pageStart, pageEnd);
+  const visibleVehicles = vehicles.slice(pageStart, pageEnd);
+  const visibleAccessories = accessories.slice(pageStart, pageEnd);
   const pageNumbers = useMemo<(number | 'ellipsis')[]>(() => {
     if (pageCount <= 7) return Array.from({ length: pageCount }, (_, index) => index + 1);
     const pages = new Set<number>([1, pageCount, currentPage, currentPage - 1, currentPage + 1]);
@@ -35,11 +46,12 @@ export default function Wiki() {
       <div className="wiki-tabs" role="tablist" aria-label="Розділи вікі">
         <button className={tab === 'skins' ? 'active' : ''} onClick={() => setTab('skins')} role="tab" aria-selected={tab === 'skins'}><UserRound size={16}/> СКІНИ <small>{skinIds.length}</small></button>
         <button className={tab === 'vehicles' ? 'active' : ''} onClick={() => setTab('vehicles')} role="tab" aria-selected={tab === 'vehicles'}><CarFront size={16}/> МОДЕЛІ МАШИН <small>{vehicleIds.length}</small></button>
+        <button className={tab === 'accessories' ? 'active' : ''} onClick={() => setTab('accessories')} role="tab" aria-selected={tab === 'accessories'}><Gem size={16}/> АКСЕСУАРИ <small>{accessoryFiles.length}</small></button>
       </div>
-      <label className="wiki-search"><Search size={17}/><span className="sr-only">Пошук у вікі</span><input value={query} onChange={event => setQuery(event.target.value)} placeholder={tab === 'skins' ? 'Пошук за ID скіна…' : 'Пошук за ID або назвою машини…'} /></label>
+      <label className="wiki-search"><Search size={17}/><span className="sr-only">Пошук у вікі</span><input value={query} onChange={event => setQuery(event.target.value)} placeholder={tab === 'skins' ? 'Пошук за ID або назвою скіна…' : tab === 'vehicles' ? 'Пошук за ID або назвою машини…' : 'Пошук за назвою аксесуара…'} /></label>
     </div>
     <div className={`wiki-grid ${tab === 'vehicles' ? 'wiki-grid-vehicles' : 'wiki-grid-skins'}`}>
-      {tab === 'skins' ? visibleItems.map(id => <article className="wiki-card wiki-skin-card" key={`skin-${id}`}><div className="wiki-card-image"><img src={`/assets/skins/130x160/${id}.png`} alt={`Скін ${id}`} loading="lazy"/><span>#{id}</span></div><div><strong>Скін #{id}</strong><small>ID моделі: {id}</small></div></article>) : visibleItems.map(id => <article className="wiki-card wiki-vehicle-card" key={`vehicle-${id}`}><div className="wiki-card-image"><img src={`/assets/vehicles/300x160/${id}.png`} alt={getVehicleName(id)} loading="lazy"/><span>#{id}</span></div><div><strong>{getVehicleName(id)}</strong><small>ID моделі: {id}</small></div></article>)}
+      {tab === 'skins' ? visibleSkins.map(id => <article className="wiki-card wiki-skin-card" key={`skin-${id}`}><div className="wiki-card-image"><img src={`/assets/skins/130x160/${id}.png`} alt={getSkinName(id)} loading="lazy"/><span>#{id}</span></div><div><strong>{getSkinName(id)}</strong><small>ID моделі: {id}</small></div></article>) : tab === 'vehicles' ? visibleVehicles.map(id => <article className="wiki-card wiki-vehicle-card" key={`vehicle-${id}`}><div className="wiki-card-image"><img src={`/assets/vehicles/300x160/${id}.png`} alt={getVehicleName(id)} loading="lazy"/><span>#{id}</span></div><div><strong>{getVehicleName(id)}</strong><small>ID моделі: {id}</small></div></article>) : visibleAccessories.map(file => <article className="wiki-card wiki-accessory-card" key={`accessory-${file}`}><div className="wiki-card-image"><img src={`/assets/accessories/300x140/${encodeURIComponent(file)}`} alt={getAccessoryName(file)} loading="lazy"/></div><div><strong>{getAccessoryName(file)}</strong><small>Аксесуар PRIME RP</small></div></article>)}
     </div>
     {!visibleCount && <p className="wiki-empty">За цим запитом нічого не знайдено.</p>}
     {visibleCount > PAGE_SIZE && <nav className="wiki-pagination" aria-label="Сторінки вікі">
