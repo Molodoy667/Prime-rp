@@ -6,7 +6,7 @@ type Seo = { path:string; title:string; description:string; keywords:string; ogI
 type Setting = { section:string; settingKey:string; settingValue:string; valueType:string };
 
 const sectionLabel:Record<string,string> = { general:'ЗАГАЛЬНІ НАЛАШТУВАННЯ', news:'НАЛАШТУВАННЯ НОВИН', launcher:'НАЛАШТУВАННЯ ЛАУНЧЕРА' };
-const settingLabel:Record<string,string> = { site_name:'Назва сайту', site_tagline:'Слоган сайту', contact_discord:'Посилання Discord', contact_telegram:'Посилання Telegram', news_section_title:'Заголовок блоку новин', news_enabled:'Показувати новини', download_url:'Посилання на завантаження лаунчера', resources_url:'Посилання на ресурси лаунчера', version:'Версія лаунчера', resources_version:'Версія ресурсів', maintenance:'Режим технічних робіт' };
+const settingLabel:Record<string,string> = { site_name:'Назва сайту', site_tagline:'Слоган сайту', contact_discord:'Посилання Discord', news_section_title:'Заголовок блоку новин', news_enabled:'Показувати новини', download_url:'Посилання на завантаження лаунчера', resources_url:'Посилання на ресурси лаунчера', version:'Версія лаунчера', resources_version:'Версія ресурсів', maintenance:'Режим технічних робіт' };
 
 const blankNews = (): News => ({ id:'', slug:'', title:'', category:'НОВИНИ', body:'', image:'', imageUrl:'', imageData:'', isPublished:true, isPlaceholder:false, sortOrder:0 });
 
