@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { CarFront, Search, UserRound } from 'lucide-react';
-import { Reveal, SectionTitle } from '../ui';
+import { SectionTitle } from '../ui';
 import { getVehicleName, skinIds, vehicleIds } from '../../data/catalog';
 
 type WikiTab = 'skins' | 'vehicles';
@@ -13,7 +13,7 @@ export default function Wiki() {
   const vehicles = useMemo(() => vehicleIds.filter(id => !normalizedQuery || `${id} ${getVehicleName(id)}`.toLocaleLowerCase('uk-UA').includes(normalizedQuery)), [normalizedQuery]);
   const visibleCount = tab === 'skins' ? skins.length : vehicles.length;
 
-  return <Reveal id="wiki" className="wiki wrap">
+  return <section id="wiki" className="wiki wrap">
     <SectionTitle eyebrow="ДОВІДНИК PRIME RP" title="ВІКІ" accent="ІГРОВОГО СВІТУ">
       <p className="wiki-summary">{visibleCount} позицій знайдено</p>
     </SectionTitle>
@@ -29,5 +29,5 @@ export default function Wiki() {
       {tab === 'skins' ? skins.map(id => <article className="wiki-card wiki-skin-card" key={`skin-${id}`}><div className="wiki-card-image"><img src={`/assets/skins/130x160/${id}.png`} alt={`Скін ${id}`} loading="lazy"/><span>#{id}</span></div><div><strong>Скін #{id}</strong><small>ID моделі: {id}</small></div></article>) : vehicles.map(id => <article className="wiki-card wiki-vehicle-card" key={`vehicle-${id}`}><div className="wiki-card-image"><img src={`/assets/vehicles/300x160/${id}.png`} alt={getVehicleName(id)} loading="lazy"/><span>#{id}</span></div><div><strong>{getVehicleName(id)}</strong><small>ID моделі: {id}</small></div></article>)}
     </div>
     {!visibleCount && <p className="wiki-empty">За цим запитом нічого не знайдено.</p>}
-  </Reveal>;
+  </section>;
 }
