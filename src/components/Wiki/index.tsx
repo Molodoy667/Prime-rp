@@ -5,6 +5,7 @@ import { getVehicleName, skinIds, vehicleIds } from '../../data/catalog';
 import { getSkinName } from '../../data/skinNames';
 import { accessoryFiles } from '../../data/accessories';
 import { accessoryNames } from '../../data/accessoryNames';
+import { getAccessoryId } from '../../data/accessoryIds';
 
 type WikiTab = 'skins' | 'vehicles' | 'accessories';
 const PAGE_SIZE_OPTIONS = [10, 20, 50, 100] as const;
@@ -21,7 +22,7 @@ export default function Wiki() {
   const normalizedQuery = query.trim().toLocaleLowerCase('uk-UA');
   const skins = useMemo(() => skinIds.filter(id => !normalizedQuery || (`${id} скін ${id}`).toLocaleLowerCase('uk-UA').includes(normalizedQuery)), [normalizedQuery]);
   const vehicles = useMemo(() => vehicleIds.filter(id => !normalizedQuery || `${id} ${getVehicleName(id)}`.toLocaleLowerCase('uk-UA').includes(normalizedQuery)), [normalizedQuery]);
-  const accessories = useMemo(() => accessoryFiles.filter(file => !normalizedQuery || `${file} ${getAccessoryName(file)}`.toLocaleLowerCase('uk-UA').includes(normalizedQuery)), [normalizedQuery]);
+  const accessories = useMemo(() => accessoryFiles.filter(file => !normalizedQuery || `${getAccessoryId(file) || ''} ${file} ${getAccessoryName(file)}`.toLocaleLowerCase('uk-UA').includes(normalizedQuery)), [normalizedQuery]);
   const visibleCount = tab === 'skins' ? skins.length : tab === 'vehicles' ? vehicles.length : accessories.length;
   const pageCount = Math.max(1, Math.ceil(visibleCount / pageSize));
   const currentPage = Math.min(page, pageCount);
@@ -54,7 +55,7 @@ export default function Wiki() {
       <label className="wiki-page-size"><span>ПОКАЗУВАТИ</span><select value={pageSize} onChange={event => setPageSize(Number(event.target.value))} aria-label="Кількість елементів на сторінці">{PAGE_SIZE_OPTIONS.map(size => <option key={size} value={size}>{size}</option>)}</select><span>НА СТОРІНЦІ</span></label>
     </div>
     <div className={`wiki-grid ${tab === 'vehicles' ? 'wiki-grid-vehicles' : 'wiki-grid-skins'}`}>
-      {tab === 'skins' ? visibleSkins.map(id => <article className="wiki-card wiki-skin-card" key={`skin-${id}`}><div className="wiki-card-image"><img src={`/assets/skins/130x160/${id}.png`} alt={getSkinName(id)} loading="lazy"/><span>#{id}</span></div><div><strong>{getSkinName(id)}</strong><small>ID моделі: {id}</small></div></article>) : tab === 'vehicles' ? visibleVehicles.map(id => <article className="wiki-card wiki-vehicle-card" key={`vehicle-${id}`}><div className="wiki-card-image"><img src={`/assets/vehicles/300x160/${id}.png`} alt={getVehicleName(id)} loading="lazy"/><span>#{id}</span></div><div><strong>{getVehicleName(id)}</strong><small>ID моделі: {id}</small></div></article>) : visibleAccessories.map(file => <article className="wiki-card wiki-accessory-card" key={`accessory-${file}`}><div className="wiki-card-image"><img src={`/assets/accessories/300x140/${encodeURIComponent(file)}`} alt={getAccessoryName(file)} loading="lazy"/></div><div><strong>{getAccessoryName(file)}</strong><small>Аксесуар PRIME RP</small></div></article>)}
+      {tab === 'skins' ? visibleSkins.map(id => <article className="wiki-card wiki-skin-card" key={`skin-${id}`}><div className="wiki-card-image"><img src={`/assets/skins/130x160/${id}.png`} alt={getSkinName(id)} loading="lazy"/><span>#{id}</span></div><div><strong>{getSkinName(id)}</strong><small>ID моделі: {id}</small></div></article>) : tab === 'vehicles' ? visibleVehicles.map(id => <article className="wiki-card wiki-vehicle-card" key={`vehicle-${id}`}><div className="wiki-card-image"><img src={`/assets/vehicles/300x160/${id}.png`} alt={getVehicleName(id)} loading="lazy"/><span>#{id}</span></div><div><strong>{getVehicleName(id)}</strong><small>ID моделі: {id}</small></div></article>) : visibleAccessories.map(file => <article className="wiki-card wiki-accessory-card" key={`accessory-${file}`}><div className="wiki-card-image"><img src={`/assets/accessories/300x140/${encodeURIComponent(file)}`} alt={getAccessoryName(file)} loading="lazy"/><span>#{getAccessoryId(file) || '—'}</span></div><div><strong>{getAccessoryName(file)}</strong><small>ID аксесуара: {getAccessoryId(file) || 'не знайдено'}</small></div></article>)}
     </div>
     {!visibleCount && <p className="wiki-empty">За цим запитом нічого не знайдено.</p>}
     {visibleCount > pageSize && <nav className="wiki-pagination" aria-label="Сторінки вікі">
