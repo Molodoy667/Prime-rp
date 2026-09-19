@@ -4,12 +4,13 @@ import { SectionTitle } from '../ui';
 import { getVehicleName, skinIds, vehicleIds } from '../../data/catalog';
 import { getSkinName } from '../../data/skinNames';
 import { accessoryFiles } from '../../data/accessories';
+import { accessoryNames } from '../../data/accessoryNames';
 
 type WikiTab = 'skins' | 'vehicles' | 'accessories';
 const PAGE_SIZE_OPTIONS = [10, 20, 50, 100] as const;
 
 function getAccessoryName(file: string) {
-  return file.replace(/\.png$/i, '').replace(/[_-]+/g, ' ').replace(/\b\w/g, letter => letter.toUpperCase());
+  return accessoryNames[file] || file.replace(/\.png$/i, '').replace(/[_-]+/g, ' ').replace(/\b\w/g, letter => letter.toUpperCase());
 }
 
 export default function Wiki() {
