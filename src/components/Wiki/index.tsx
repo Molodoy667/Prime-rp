@@ -1,17 +1,30 @@
-import { useMemo, useState } from 'react';
-import { CarFront, Search, UserRound } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { ArrowLeft, ArrowRight, CarFront, Search, UserRound } from 'lucide-react';
 import { SectionTitle } from '../ui';
 import { getVehicleName, skinIds, vehicleIds } from '../../data/catalog';
 
 type WikiTab = 'skins' | 'vehicles';
+const PAGE_SIZE = 10;
 
 export default function Wiki() {
   const [tab, setTab] = useState<WikiTab>('skins');
   const [query, setQuery] = useState('');
+  const [page, setPage] = useState(1);
   const normalizedQuery = query.trim().toLocaleLowerCase('uk-UA');
   const skins = useMemo(() => skinIds.filter(id => !normalizedQuery || (`${id} скін ${id}`).toLocaleLowerCase('uk-UA').includes(normalizedQuery)), [normalizedQuery]);
   const vehicles = useMemo(() => vehicleIds.filter(id => !normalizedQuery || `${id} ${getVehicleName(id)}`.toLocaleLowerCase('uk-UA').includes(normalizedQuery)), [normalizedQuery]);
   const visibleCount = tab === 'skins' ? skins.length : vehicles.length;
+  const pageCount = Math.max(1, Math.ceil(visibleCount / PAGE_SIZE));
+  const currentPage = Math.min(page, pageCount);
+  const visibleItems = (tab === 'skins' ? skins : vehicles).slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+  const pageNumbers = useMemo<(number | 'ellipsis')[]>(() => {
+    if (pageCount <= 7) return Array.from({ length: pageCount }, (_, index) => index + 1);
+    const pages = new Set<number>([1, pageCount, currentPage, currentPage - 1, currentPage + 1]);
+    const ordered = [...pages].filter(number => number >= 1 && number <= pageCount).sort((a, b) => a - b);
+    return ordered.flatMap((number, index) => index > 0 && number - ordered[index - 1] > 1 ? ['ellipsis', number] : [number]);
+  }, [currentPage, pageCount]);
+
+  useEffect(() => setPage(1), [tab, normalizedQuery]);
 
   return <section id="wiki" className="wiki wrap">
     <SectionTitle eyebrow="ДОВІДНИК PRIME RP" title="ВІКІ" accent="ІГРОВОГО СВІТУ">
@@ -26,8 +39,15 @@ export default function Wiki() {
       <label className="wiki-search"><Search size={17}/><span className="sr-only">Пошук у вікі</span><input value={query} onChange={event => setQuery(event.target.value)} placeholder={tab === 'skins' ? 'Пошук за ID скіна…' : 'Пошук за ID або назвою машини…'} /></label>
     </div>
     <div className={`wiki-grid ${tab === 'vehicles' ? 'wiki-grid-vehicles' : 'wiki-grid-skins'}`}>
-      {tab === 'skins' ? skins.map(id => <article className="wiki-card wiki-skin-card" key={`skin-${id}`}><div className="wiki-card-image"><img src={`/assets/skins/130x160/${id}.png`} alt={`Скін ${id}`} loading="lazy"/><span>#{id}</span></div><div><strong>Скін #{id}</strong><small>ID моделі: {id}</small></div></article>) : vehicles.map(id => <article className="wiki-card wiki-vehicle-card" key={`vehicle-${id}`}><div className="wiki-card-image"><img src={`/assets/vehicles/300x160/${id}.png`} alt={getVehicleName(id)} loading="lazy"/><span>#{id}</span></div><div><strong>{getVehicleName(id)}</strong><small>ID моделі: {id}</small></div></article>)}
+      {tab === 'skins' ? visibleItems.map(id => <article className="wiki-card wiki-skin-card" key={`skin-${id}`}><div className="wiki-card-image"><img src={`/assets/skins/130x160/${id}.png`} alt={`Скін ${id}`} loading="lazy"/><span>#{id}</span></div><div><strong>Скін #{id}</strong><small>ID моделі: {id}</small></div></article>) : visibleItems.map(id => <article className="wiki-card wiki-vehicle-card" key={`vehicle-${id}`}><div className="wiki-card-image"><img src={`/assets/vehicles/300x160/${id}.png`} alt={getVehicleName(id)} loading="lazy"/><span>#{id}</span></div><div><strong>{getVehicleName(id)}</strong><small>ID моделі: {id}</small></div></article>)}
     </div>
     {!visibleCount && <p className="wiki-empty">За цим запитом нічого не знайдено.</p>}
+    {visibleCount > PAGE_SIZE && <nav className="wiki-pagination" aria-label="Сторінки вікі">
+      <button className="wiki-pagination-arrow" onClick={() => setPage(value => Math.max(1, value - 1))} disabled={currentPage === 1} aria-label="Попередня сторінка"><ArrowLeft size={15}/> <span>НАЗАД</span></button>
+      <div className="wiki-pagination-pages">
+        {pageNumbers.map((number, index) => number === 'ellipsis' ? <span key={`ellipsis-${index}`} className="wiki-pagination-ellipsis">…</span> : <button key={number} className={number === currentPage ? 'active' : ''} onClick={() => setPage(number)} aria-current={number === currentPage ? 'page' : undefined}>{number}</button>)}
+      </div>
+      <button className="wiki-pagination-arrow" onClick={() => setPage(value => Math.min(pageCount, value + 1))} disabled={currentPage === pageCount} aria-label="Наступна сторінка"><span>ДАЛІ</span> <ArrowRight size={15}/></button>
+    </nav>}
   </section>;
 }
