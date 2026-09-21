@@ -33,10 +33,10 @@
 .roulette-track:not(.rolling) .roulette-result-card:nth-child(5){transform:translateZ(24px) rotateY(-6deg)}
 .roulette-track:not(.rolling) .roulette-result-card:nth-child(6){transform:translateZ(0) rotateY(-13deg) scale(.94);opacity:.8}
 .roulette-track:not(.rolling) .roulette-result-card:nth-child(n+7){transform:translateZ(-45px) rotateY(-22deg) scale(.86);opacity:.54}
-.roulette-track.rolling{transform:translate3d(-48%,0,105px) rotateX(11deg) rotateY(-8deg) scale(1.04);animation:roulette-track-roll 6.2s cubic-bezier(.12,.74,.15,1) forwards;filter:drop-shadow(0 18px 35px #ff5a2e35)}
+.roulette-track.rolling{transform:translate3d(-48%,0,0);animation:roulette-track-roll 6.2s cubic-bezier(.12,.74,.15,1) forwards;filter:drop-shadow(0 18px 35px #ff5a2e35)}
 .roulette-track.rolling .roulette-result-card{animation:roulette-card-shimmer 550ms ease-in-out infinite alternate}
-@keyframes roulette-card-shimmer{from{filter:brightness(.88) saturate(.95);transform:translateZ(0) rotateY(-2deg)}to{filter:brightness(1.18) saturate(1.25);transform:translateZ(26px) rotateY(2deg)}}
-@keyframes roulette-track-roll{0%{transform:translate3d(12%,0,20px) rotateX(2deg) rotateY(2deg) scale(1)}22%{transform:translate3d(-48%,0,120px) rotateX(12deg) rotateY(-9deg) scale(1.05)}72%{transform:translate3d(-170%,0,90px) rotateX(10deg) rotateY(-7deg) scale(1.03)}100%{transform:translate3d(-48%,0,105px) rotateX(11deg) rotateY(-8deg) scale(1.04)}}
+@keyframes roulette-card-shimmer{from{filter:brightness(.88) saturate(.95)}to{filter:brightness(1.18) saturate(1.25)}}
+@keyframes roulette-track-roll{0%{transform:translate3d(10%,0,0)}28%{transform:translate3d(-12%,0,0)}72%{transform:translate3d(-38%,0,0)}100%{transform:translate3d(-48%,0,0)}}
 .roulette-pointer{filter:drop-shadow(0 0 12px #ff5a2e) drop-shadow(0 5px 10px #000);border-top-width:24px}
 .roulette-center{z-index:4;box-shadow:0 0 24px #ff754533,0 8px 22px #0008}
 .roulette-my-prizes{min-height:52px;display:inline-flex;align-items:center;gap:8px}
