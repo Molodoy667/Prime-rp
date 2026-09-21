@@ -11,7 +11,7 @@ export default async function handler(request, response) {
   try {
     const db = getDatabase();
     const [rows] = await db.query(
-      `SELECT id, nickname, login, password, email, level, exp, online, money, donate,
+      `SELECT id, client_id, nickname, login, password, email, level, exp, online, money, donate,
               premium_time_left, premium_total, premium_transactions, premium_last_date,
               donate_total, donate_transactions, donate_last_date,
               health, calories, armor, quests, BattlePass, phone, phone_balance,
@@ -36,12 +36,15 @@ export default async function handler(request, response) {
     if (!player || player.banned || player.password !== password) {
       return json(response, 401, { error: 'Неправильний логін або пароль' });
     }
-    // The game stores the active model inside permanent_data.skins.s1. The
-    // legacy `skin` column can remain the default model, so prefer the runtime
-    // value when it is available.
+    const [[commonPlayerData]] = await db.query('SELECT permanent_data FROM ugta_players_common WHERE client_id=? LIMIT 1', [player.client_id]);
+    // The game stores the active model inside ugta_players_common.permanent_data.skins.s1.
+    // The legacy `skin` column can remain the default model, so prefer the runtime value.
     try {
-      const permanentData = typeof player.permanent_data === 'string' ? JSON.parse(player.permanent_data) : player.permanent_data;
-      const activeSkin = Number(permanentData?.skins?.s1 ?? permanentData?.skin ?? player.skin);
+      const rawPermanentData = commonPlayerData?.permanent_data || player.permanent_data;
+      const permanentData = typeof rawPermanentData === 'string' ? JSON.parse(rawPermanentData) : rawPermanentData;
+      const rawSkins = permanentData?.skins;
+      const skins = typeof rawSkins === 'string' ? JSON.parse(rawSkins) : rawSkins;
+      const activeSkin = Number(skins?.s1 ?? permanentData?.skin ?? player.skin);
       if (Number.isInteger(activeSkin) && activeSkin > 0) player.skin = activeSkin;
     } catch {
       // Keep the explicit SQL skin value when permanent_data is empty or invalid.
@@ -53,7 +56,7 @@ export default async function handler(request, response) {
       db.query('SELECT id, hid, owner, sale_state, meter_type FROM ugta_viphouses WHERE owner=? ORDER BY id', [player.id]),
       db.query('SELECT id, business_id, name, balance, payment_date, weekly_profit FROM ugta_businesses WHERE owner_id=? ORDER BY id', [player.id]),
     ]);
-    player.profile_version = 3;
+    player.profile_version = 4;
     player.vehicles = vehicles;
     player.apartments = [...apartments, ...vipHouses];
     player.businesses = businesses;

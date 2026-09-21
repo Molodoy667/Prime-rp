@@ -105,7 +105,7 @@ const roleLabel: Record<PlayerRole, string> = {
 };
 const playerStorageKey = 'prime-account-session';
 // Оновлення структури профілю мають скидати стару кешовану сесію.
-const currentProfileVersion = 3;
+const currentProfileVersion = 4;
 
 function loadPlayer(): Player | null {
   try {
@@ -165,11 +165,11 @@ export default function Account() {
 
   if (player) return (
     <div className="account-page">
-      <header className="account-header"><Brand/><button className="account-back" onClick={logout}><LogOut size={16}/> ВИЙТИ</button></header>
+      <header className="account-header"><Brand/><nav className="account-nav" aria-label="Навігація кабінету"><a href="/">Головна</a><a href="/wiki">Вікі</a><a href="/donate">Донат</a><a href="/forum">Форум</a></nav><button className="account-back" onClick={logout}><LogOut size={16}/> ВИЙТИ</button></header>
       <main className="account-main">
         <div className="account-dashboard-heading"><div><p className="eyebrow"><span/> PERSONAL SPACE</p><h1>КАБІНЕТ <em>{player.nickname}</em></h1><p className="account-muted">Ігровий профіль PRIME RP та особиста статистика.</p></div><div className="account-level"><span>РІВЕНЬ</span><strong>{player.level}</strong></div></div>
         <section className="account-grid">
-          <article className="account-card account-card-wide"><div className="account-card-icon account-avatar-frame">{skinImage(player.skin) ? <img src={skinImage(player.skin)!} alt={`Скін ${player.skin}`}/> : <UserRound/>}</div><div><span className="account-label">ІГРОВИЙ ПРОФІЛЬ</span><h2>{player.nickname}</h2><p>Логін: {player.login}<br/>Електронна пошта: {player.email || 'Не вказано'}<br/>Роль: <strong className="account-role">{roleLabel[player.role]}</strong></p></div><span className="account-status"><i/> {player.online ? 'У ГРІ' : 'НЕ В МЕРЕЖІ'}</span></article>
+          <article className="account-card account-card-wide"><div className="account-card-icon account-avatar-frame">{skinImage(player.skin) ? <img src={skinImage(player.skin)!} alt={`Скін ${player.skin}`}/> : <UserRound/>}</div><div><span className="account-label">ІГРОВИЙ ПРОФІЛЬ</span><h2>{player.nickname}</h2><p>Логін: {player.login}<br/>Електронна пошта: {player.email || 'Не вказано'}<br/>Роль: <strong className="account-role">{roleLabel[player.role]}</strong></p></div><span className="account-status"><i/> {Number(player.online) === 1 ? 'У ГРІ' : 'НЕ В МЕРЕЖІ'}</span></article>
           <article className="account-card"><Wallet/><span className="account-label">ІГРОВІ ГРОШІ</span><strong>{fmt(player.money)} ₴</strong></article>
           <article className="account-card"><Coins/><span className="account-label">ДОНАТ-БАЛАНС</span><strong>{fmt(player.donate)}</strong></article>
           <article className="account-card"><ShieldCheck/><span className="account-label">ДОСВІД</span><strong>{fmt(player.exp)}</strong><small>до наступного рівня</small></article>
