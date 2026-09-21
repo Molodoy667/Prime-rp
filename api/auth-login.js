@@ -20,7 +20,7 @@ export default async function handler(request, response) {
               clan_id, clan_exp, clan_rank, clan_role, job_class, job_id,
               military_level, military_exp, subscription_time_left, subscription_total,
               subscription_transactions, subscription_last_date, business_coins, cinema_balance,
-              playing_time, reg_date, last_date, last_enter_date, birthday, sessions_counter, permanent_data,
+              playing_time, reg_date, last_date, last_enter_date, birthday, sessions_counter, skins, permanent_data,
               (SELECT COUNT(*) FROM ugta_apartments a WHERE a.user_id = ugta_players.id) +
               (SELECT COUNT(*) FROM ugta_viphouses h WHERE h.owner = ugta_players.id) housing_count,
               CONCAT_WS(', ',
@@ -37,19 +37,35 @@ export default async function handler(request, response) {
       return json(response, 401, { error: 'Неправильний логін або пароль' });
     }
     const [[commonPlayerData]] = await db.query('SELECT permanent_data FROM ugta_players_common WHERE client_id=? LIMIT 1', [player.client_id]);
-    // The game stores the active model inside ugta_players_common.permanent_data.skins.s1.
-    // The legacy `skin` column can remain the default model, so prefer the runtime value.
+    // The game stores the active model in ugta_players.skins.s1. The legacy
+    // `skin` column can remain the default model, so prefer the runtime value.
     try {
       const rawPermanentData = commonPlayerData?.permanent_data || player.permanent_data;
       const permanentData = typeof rawPermanentData === 'string' ? JSON.parse(rawPermanentData) : rawPermanentData;
-      const rawSkins = permanentData?.skins;
-      const skins = typeof rawSkins === 'string' ? JSON.parse(rawSkins) : rawSkins;
-      const activeSkin = Number(skins?.s1 ?? permanentData?.skin ?? player.skin);
+      const rawPlayerSkins = player.skins;
+      const playerSkins = typeof rawPlayerSkins === 'string' ? JSON.parse(rawPlayerSkins) : rawPlayerSkins;
+      const rawPermanentSkins = permanentData?.skins;
+      const permanentSkins = typeof rawPermanentSkins === 'string' ? JSON.parse(rawPermanentSkins) : rawPermanentSkins;
+      const activeSkin = Number(
+        (Array.isArray(playerSkins) ? playerSkins[0] : playerSkins)?.s1 ??
+        playerSkins?.s1 ??
+        (Array.isArray(permanentSkins) ? permanentSkins[0] : permanentSkins)?.s1 ??
+        permanentSkins?.s1 ??
+        permanentData?.skin ??
+        player.skin,
+      );
       if (Number.isInteger(activeSkin) && activeSkin > 0) player.skin = activeSkin;
     } catch {
       // Keep the explicit SQL skin value when permanent_data is empty or invalid.
     }
+    // `online` is written by the game on login/logout. If the game process
+    // crashes before the logout handler runs, the flag may stay at 1 forever.
+    // Treat very old login sessions as offline until the game writes a fresh one.
+    const lastEnterDate = Number(player.last_enter_date);
+    const onlineSessionAge = Math.floor(Date.now() / 1000) - lastEnterDate;
+    if (Number(player.online) === 1 && (!lastEnterDate || onlineSessionAge > 12 * 60 * 60)) player.online = 0;
     delete player.permanent_data;
+    delete player.skins;
     const [[vehicles], [apartments], [vipHouses], [businesses]] = await Promise.all([
       db.query("SELECT id, model, health, fuel, mileage, number_plate, creation_date FROM ugta_vehicles WHERE owner_pid=? AND (deleted IS NULL OR deleted=0) ORDER BY id", [`p:${player.id}`]),
       db.query('SELECT id, number, meter_type, sale_state, paid_days, time_to_pay, paid_upgrade FROM ugta_apartments WHERE user_id=? ORDER BY number', [player.id]),

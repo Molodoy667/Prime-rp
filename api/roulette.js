@@ -36,6 +36,31 @@ const defaultPrizes = [
   ['red', 'Автомобіль · Porsche 911 GT3', 'vehicle', '6697', '/assets/vehicles/300x160/6697.png', 5],
   ['yellow', 'Автомобіль · McLaren 720S', 'vehicle', '6698', '/assets/vehicles/300x160/6698.png', 3],
   ['yellow', 'Скін · Пекельна леді', 'skin', '257', '/assets/skins/130x160/257.png', 4],
+  ['white', 'Гроші · 25 000', 'money', '25000', '/assets/accessories/300x140/armor_body_cash.png', 7],
+  ['white', 'Предмет · Ремкомплект', 'item', 'repair_kit', '/assets/accessories/300x140/armor_body_purple.png', 8],
+  ['white', 'Предмет · Аптечка', 'item', 'medkit', '/assets/accessories/300x140/armor_body_red_heart.png', 9],
+  ['blue', 'Досвід · 25 000 XP', 'experience', '25000', '/assets/accessories/300x140/animal_eagle.png', 7],
+  ['blue', 'Преміум · 7 днів', 'premium', '604800', '/assets/skins/130x160/6791.png', 8],
+  ['blue', 'Скін · Мовчазний титан', 'skin', '73', '/assets/skins/130x160/73.png', 7],
+  ['purple', 'Автомобіль · Porsche Carrera GT', 'vehicle', '6679', '/assets/vehicles/300x160/6679.png', 6],
+  ['purple', 'Автомобіль · Mercedes-Benz W221', 'vehicle', '6692', '/assets/vehicles/300x160/6692.png', 7],
+  ['red', 'Скін · Вуличний стиль', 'skin', '120', '/assets/skins/130x160/120.png', 6],
+  ['red', 'Автомобіль · BMW M8', 'vehicle', '6586', '/assets/vehicles/300x160/6586.png', 7],
+  ['yellow', 'Автомобіль · Porsche 911 GT3', 'vehicle', '6697', '/assets/vehicles/300x160/6697.png', 4],
+  ['yellow', 'Донат · 2 500', 'donate', '2500', '/assets/accessories/300x140/armor_body_cash.png', 5],
+  ['yellow', 'Автомобіль · Mercedes-Benz GT63s 4.0 V8', 'vehicle', '6529', '/assets/vehicles/300x160/6529.png', 4],
+  ['yellow', 'Автомобіль · Can-Am Maverick X3', 'vehicle', '434', '/assets/vehicles/300x160/434.png', 4],
+  ['red', 'Скін · Байкерша', 'skin', '145', '/assets/skins/130x160/145.png', 7],
+  ['red', 'Скін · Джо Барбаро', 'skin', '234', '/assets/skins/130x160/234.png', 7],
+  ['red', 'Скін · Дівчина дайвер', 'skin', '254', '/assets/skins/130x160/254.png', 7],
+  ['purple', 'Автомобіль · BMW M3 E92', 'vehicle', '6635', '/assets/vehicles/300x160/6635.png', 8],
+  ['purple', 'Автомобіль · Toyota Corolla AE86', 'vehicle', '477', '/assets/vehicles/300x160/477.png', 8],
+  ['purple', 'Автомобіль · Chevrolet Aveo', 'vehicle', '6564', '/assets/vehicles/300x160/6564.png', 8],
+  ['blue', 'Скін · Курортниця', 'skin', '39', '/assets/skins/130x160/39.png', 8],
+  ['blue', 'Скін · Спортивна', 'skin', '6729', '/assets/skins/130x160/6729.png', 8],
+  ['blue', 'Автомобіль · Citroen AMI', 'vehicle', '496', '/assets/vehicles/300x160/496.png', 8],
+  ['white', 'Автомобіль · Skoda Octavia 7', 'vehicle', '6575', '/assets/vehicles/300x160/6575.png', 9],
+  ['white', 'Автомобіль · Електросамокат', 'vehicle', '510', '/assets/vehicles/300x160/510.png', 9],
 ];
 
 async function ensureSchema(db) {
@@ -137,6 +162,16 @@ export default async function handler(request, response) {
       const admin = request.query?.admin === '1';
       const actorId = safePlayerId(request.query?.actorId);
       if (admin && !(await requireAdmin(db, actorId))) return json(response, 403, { error: 'Недостатньо прав' });
+      if (request.query?.recent === '1') {
+        const [recentRows] = await db.query(`
+          SELECT w.id,w.quality,w.title,w.reward_type rewardType,w.image_url imageUrl,
+                 w.created_at createdAt,p.nickname
+          FROM site_roulette_wins w
+          LEFT JOIN ugta_players p ON p.id=w.player_id
+          ORDER BY w.id DESC LIMIT 12
+        `);
+        return json(response, 200, { recentWins: recentRows });
+      }
       const playerId = safePlayerId(request.query?.playerId || actorId);
       if (!admin && !playerId) return json(response, 401, { error: 'Потрібна авторизація' });
       const [prizeRows] = await db.query(admin ? 'SELECT * FROM site_roulette_prizes ORDER BY quality, sort_order, id' : 'SELECT * FROM site_roulette_prizes WHERE is_active=1 ORDER BY quality, sort_order, id');
@@ -152,23 +187,41 @@ export default async function handler(request, response) {
     const playerId = safePlayerId(input.playerId);
     if (input.action === 'spin') {
       if (!playerId) return json(response, 401, { error: 'Потрібна авторизація' });
+      const spinCount = Math.min(5, Math.max(1, Math.floor(Number(input.count) || 1)));
       const [prizeRows] = await db.query('SELECT * FROM site_roulette_prizes WHERE is_active=1 ORDER BY id');
       if (!prizeRows.length) return json(response, 503, { error: 'Призи ще не налаштовані' });
       const config = await getRouletteConfig(db);
       const wallet = await getPlayerRouletteWallet(db, playerId, config);
-      const useFree = wallet.freeSpins > 0;
-      if (useFree && config.freeSpinColumn) {
-        const result = await db.query(`UPDATE ugta_players SET ${identifier(config.freeSpinColumn)}=GREATEST(0,${identifier(config.freeSpinColumn)}-1) WHERE id=? AND ${identifier(config.freeSpinColumn)}>0`, [playerId]);
-        if (!result[0].affectedRows) return json(response, 409, { error: 'Безкоштовне обертання вже використано, повторіть запит' });
-      } else {
-        const result = await db.query('UPDATE ugta_players SET donate=donate-? WHERE id=? AND donate>=?', [config.spinPrice, playerId, config.spinPrice]);
-        if (!result[0].affectedRows) return json(response, 400, { error: `Недостатньо донату. Ціна обертання: ${config.spinPrice}` });
-      }
-      const prize = draw(prizeRows);
-      await db.query('INSERT INTO site_roulette_history (player_id,prize_id,quality,title,image_url) VALUES (?,?,?,?,?)', [playerId, prize.id, prize.quality, prize.title, prize.image_url]);
-      const sellPrice = Math.max(0, Math.round(Number(prize.reward_value) * 0.35)) || (prize.quality === 'yellow' ? 500000 : prize.quality === 'red' ? 150000 : prize.quality === 'purple' ? 50000 : prize.quality === 'blue' ? 15000 : 5000);
-      const [winResult] = await db.query('INSERT INTO site_roulette_wins (player_id,prize_id,quality,title,reward_type,reward_value,image_url,sell_price) VALUES (?,?,?,?,?,?,?,?)', [playerId, prize.id, prize.quality, prize.title, prize.reward_type, prize.reward_value, prize.image_url, sellPrice]);
-      return json(response, 200, { prize: normalizePrize(prize), winId: Number(winResult.insertId), sellPrice, freeSpins: Math.max(0, wallet.freeSpins - (useFree ? 1 : 0)), balance: Math.max(0, wallet.donate - (useFree ? 0 : config.spinPrice)), donate: Math.max(0, wallet.donate - (useFree ? 0 : config.spinPrice)), spinPrice: config.spinPrice });
+      const paidMode = input.mode === 'paid';
+      const freeUsed = !paidMode && config.freeSpinColumn ? Math.min(spinCount, wallet.freeSpins) : 0;
+      const paidCount = spinCount - freeUsed;
+      const totalCost = paidCount * config.spinPrice;
+      if (paidCount && wallet.donate < totalCost) return json(response, 400, { error: `Недостатньо донату. Для ${spinCount} прокруток потрібно ${totalCost}` });
+      const connection = await db.getConnection();
+      try {
+        await connection.beginTransaction();
+        if (freeUsed) {
+          const result = await connection.query(`UPDATE ugta_players SET ${identifier(config.freeSpinColumn)}=GREATEST(0,${identifier(config.freeSpinColumn)}-?) WHERE id=? AND ${identifier(config.freeSpinColumn)}>=?`, [freeUsed, playerId, freeUsed]);
+          if (!result[0].affectedRows) throw new Error('Безкоштовні обертання вже змінилися, повторіть запит');
+        }
+        if (paidCount) {
+          const result = await connection.query('UPDATE ugta_players SET donate=donate-? WHERE id=? AND donate>=?', [totalCost, playerId, totalCost]);
+          if (!result[0].affectedRows) throw new Error('Баланс донату змінився, повторіть запит');
+        }
+        const results = [];
+        for (let index = 0; index < spinCount; index += 1) {
+          const prize = draw(prizeRows);
+          await connection.query('INSERT INTO site_roulette_history (player_id,prize_id,quality,title,image_url) VALUES (?,?,?,?,?)', [playerId, prize.id, prize.quality, prize.title, prize.image_url]);
+          const sellPrice = Math.max(0, Math.round(Number(prize.reward_value) * 0.35)) || (prize.quality === 'yellow' ? 500000 : prize.quality === 'red' ? 150000 : prize.quality === 'purple' ? 50000 : prize.quality === 'blue' ? 15000 : 5000);
+          const [winResult] = await connection.query('INSERT INTO site_roulette_wins (player_id,prize_id,quality,title,reward_type,reward_value,image_url,sell_price) VALUES (?,?,?,?,?,?,?,?)', [playerId, prize.id, prize.quality, prize.title, prize.reward_type, prize.reward_value, prize.image_url, sellPrice]);
+          results.push({ prize: normalizePrize(prize), winId: Number(winResult.insertId), sellPrice });
+        }
+        await connection.commit();
+        return json(response, 200, { results, prize: results[0].prize, winId: results[0].winId, sellPrice: results[0].sellPrice, count: spinCount, freeSpins: Math.max(0, wallet.freeSpins - freeUsed), balance: Math.max(0, wallet.donate - totalCost), donate: Math.max(0, wallet.donate - totalCost), spinPrice: config.spinPrice });
+      } catch (error) {
+        await connection.rollback();
+        return json(response, 409, { error: error instanceof Error ? error.message : 'Не вдалося виконати прокрутку' });
+      } finally { connection.release(); }
     }
     if (input.action === 'claim' || input.action === 'sell') {
       if (!playerId) return json(response, 401, { error: 'Потрібна авторизація' });
