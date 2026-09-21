@@ -16,12 +16,12 @@ const defaultPrizes = [
   ['blue', 'Преміум · 1 день', 'premium', '86400', '/assets/skins/130x160/6791.png', 1],
   ['blue', 'Гроші · 250 000', 'money', '250000', '/assets/accessories/300x140/armor_body_red_heart.png', 2],
   ['blue', 'Скін · Скінхед', 'skin', '47', '/assets/skins/130x160/47.png', 3],
-  ['purple', 'Аксесуар · Рожеві крила', 'accessory', 'animal_fenix.png', '/assets/accessories/300x140/animal_fenix.png', 1],
-  ['purple', 'Скін · Грабіжник', 'skin', '101', '/assets/skins/130x160/101.png', 2],
+  ['purple', 'Аксесуар · Рожеві крила', 'accessory', 'luxe_pirl_pink.png', '/assets/accessories/300x140/luxe_pirl_pink.png', 1],
+  ['purple', 'Скін · Грабіжник', 'skin', '91', '/assets/skins/130x160/91.png', 2],
   ['purple', 'Автомобіль · BMW X5 Competition', 'vehicle', '6585', '/assets/vehicles/300x160/6585.png', 3],
   ['red', 'Скін · Пекельна леді', 'skin', '257', '/assets/skins/130x160/257.png', 1],
   ['red', 'Автомобіль · Lamborghini Terzo', 'vehicle', '6699', '/assets/vehicles/300x160/6699.png', 2],
-  ['red', 'Аксесуар · Розкішні крила', 'accessory', 'animal_fenix.png', '/assets/accessories/300x140/animal_fenix.png', 3],
+  ['red', 'Аксесуар · Розкішні крила', 'accessory', 'luxe_pirl_gradient.png', '/assets/accessories/300x140/luxe_pirl_gradient.png', 3],
   ['yellow', 'Автомобіль · Mercedes-AMG G63 2022', 'vehicle', '6535', '/assets/vehicles/300x160/6535.png', 1],
   ['yellow', 'Гроші · 1 000 000', 'money', '1000000', '/assets/accessories/300x140/armor_body_cash.png', 2],
   ['white', 'Гроші · 50 000', 'money', '50000', '/assets/accessories/300x140/armor_body_cash.png', 4],
@@ -29,24 +29,24 @@ const defaultPrizes = [
   ['white', 'Предмет · Каністра', 'item', 'fuel_canister', '/assets/accessories/300x140/fuel_canister.png', 6],
   ['blue', 'Гроші · 500 000', 'money', '500000', '/assets/accessories/300x140/armor_body_cash.png', 4],
   ['blue', 'Преміум · 3 дні', 'premium', '259200', '/assets/skins/130x160/6791.png', 5],
-  ['blue', 'Скін · Футболіст', 'skin', '73', '/assets/skins/130x160/73.png', 6],
-  ['purple', 'Автомобіль · BMW M8', 'vehicle', '6586', '/assets/vehicles/300x160/6586.png', 4],
-  ['purple', 'Аксесуар · Рюкзак', 'accessory', 'backpack_modern.png', '/assets/accessories/300x140/backpack_modern.png', 5],
-  ['red', 'Скін · Стильний мафіозі', 'skin', '120', '/assets/skins/130x160/120.png', 4],
-  ['red', 'Автомобіль · Porsche 911 GT3', 'vehicle', '6697', '/assets/vehicles/300x160/6697.png', 5],
-  ['yellow', 'Автомобіль · McLaren 720S', 'vehicle', '6698', '/assets/vehicles/300x160/6698.png', 3],
-  ['yellow', 'Скін · Пекельна леді', 'skin', '257', '/assets/skins/130x160/257.png', 4],
+  ['blue', 'Скін · Футболіст', 'skin', '6722', '/assets/skins/130x160/6722.png', 6],
+  ['purple', 'Автомобіль · BMW M8', 'vehicle', '474', '/assets/vehicles/300x160/474.png', 4],
+  ['purple', 'Аксесуар · Рюкзак Модний', 'accessory', 'bag_smile3.png', '/assets/accessories/300x140/bag_smile3.png', 5],
+  ['red', 'Скін · Стильний мачо', 'skin', '6784', '/assets/skins/130x160/6784.png', 4],
+  ['red', 'Автомобіль · Porsche 911 GT3 R 2019', 'vehicle', '575', '/assets/vehicles/300x160/575.png', 5],
+  ['yellow', 'Автомобіль · McLaren 720S', 'vehicle', '545', '/assets/vehicles/300x160/545.png', 3],
+  ['yellow', 'Скін · Пекельна леді', 'skin', '156', '/assets/skins/130x160/156.png', 4],
   ['white', 'Гроші · 25 000', 'money', '25000', '/assets/accessories/300x140/armor_body_cash.png', 7],
   ['white', 'Предмет · Ремкомплект', 'item', 'repair_kit', '/assets/accessories/300x140/armor_body_purple.png', 8],
   ['white', 'Предмет · Аптечка', 'item', 'medkit', '/assets/accessories/300x140/armor_body_red_heart.png', 9],
   ['blue', 'Досвід · 25 000 XP', 'experience', '25000', '/assets/accessories/300x140/animal_eagle.png', 7],
   ['blue', 'Преміум · 7 днів', 'premium', '604800', '/assets/skins/130x160/6791.png', 8],
-  ['blue', 'Скін · Мовчазний титан', 'skin', '73', '/assets/skins/130x160/73.png', 7],
+  ['blue', 'Скін · Мовчазний титан', 'skin', '6848', '/assets/skins/130x160/6848.png', 7],
   ['purple', 'Автомобіль · Porsche Carrera GT', 'vehicle', '6679', '/assets/vehicles/300x160/6679.png', 6],
   ['purple', 'Автомобіль · Mercedes-Benz W221', 'vehicle', '6692', '/assets/vehicles/300x160/6692.png', 7],
-  ['red', 'Скін · Вуличний стиль', 'skin', '120', '/assets/skins/130x160/120.png', 6],
-  ['red', 'Автомобіль · BMW M8', 'vehicle', '6586', '/assets/vehicles/300x160/6586.png', 7],
-  ['yellow', 'Автомобіль · Porsche 911 GT3', 'vehicle', '6697', '/assets/vehicles/300x160/6697.png', 4],
+  ['red', 'Скін · Вуличний стиль', 'skin', '6864', '/assets/skins/130x160/6864.png', 6],
+  ['red', 'Автомобіль · BMW M8', 'vehicle', '474', '/assets/vehicles/300x160/474.png', 7],
+  ['yellow', 'Автомобіль · Porsche 911 GT3 R 2019', 'vehicle', '575', '/assets/vehicles/300x160/575.png', 4],
   ['yellow', 'Донат · 2 500', 'donate', '2500', '/assets/accessories/300x140/armor_body_cash.png', 5],
   ['yellow', 'Автомобіль · Mercedes-Benz GT63s 4.0 V8', 'vehicle', '6529', '/assets/vehicles/300x160/6529.png', 4],
   ['yellow', 'Автомобіль · Can-Am Maverick X3', 'vehicle', '434', '/assets/vehicles/300x160/434.png', 4],
@@ -70,8 +70,8 @@ const defaultPrizes = [
   ['red', 'Скін · Мовчазний титан', 'skin', '6848', '/assets/skins/130x160/6848.png', 15],
   ['red', 'Скін · Швидка зірка', 'skin', '6847', '/assets/skins/130x160/6847.png', 16],
   ['red', 'Скін · Стильний мачо', 'skin', '6784', '/assets/skins/130x160/6784.png', 17],
-  ['red', 'Скін · Пекельна леді', 'skin', '6791', '/assets/skins/130x160/6791.png', 18],
-  ['red', 'Скін · Футболіст', 'skin', '6816', '/assets/skins/130x160/6816.png', 19],
+  ['red', 'Скін · Пекельна леді', 'skin', '156', '/assets/skins/130x160/156.png', 18],
+  ['red', 'Скін · Футболіст', 'skin', '6722', '/assets/skins/130x160/6722.png', 19],
   ['red', 'Мото · Kawasaki Ninja H2R', 'vehicle', '521', '/assets/vehicles/300x160/521.png', 20],
   ['red', 'Аксесуар · Розкішні крила', 'accessory', 'luxe_pirl_gradient.png', '/assets/accessories/300x140/luxe_pirl_gradient.png', 21],
   ['red', 'Автомобіль · Mercedes-Benz GT63s 4.0 V8', 'vehicle', '6529', '/assets/vehicles/300x160/6529.png', 22],
@@ -83,20 +83,20 @@ const defaultPrizes = [
   ['purple', 'Автомобіль · Mercedes-Benz W221 AMG W12', 'vehicle', '6692', '/assets/vehicles/300x160/6692.png', 28],
   ['purple', 'Автомобіль · BMW M3 E92', 'vehicle', '6635', '/assets/vehicles/300x160/6635.png', 29],
   ['purple', 'Аксесуар · Рюкзак Модний', 'accessory', 'backpack_fashion_panda.png', '/assets/accessories/300x140/backpack_fashion_panda.png', 30],
-  ['purple', 'Аксесуар · Неонові катани блакитно-зелені', 'accessory', 'academic_heat.png', '/assets/accessories/300x140/academic_heat.png', 31],
+  ['purple', 'Аксесуар · Неонові катани блакитно-зелені', 'accessory', 'knife_neon_ultralite.png', '/assets/accessories/300x140/knife_neon_ultralite.png', 31],
   ['blue', 'Аксесуар · Рожевий веселий кіт', 'accessory', 'backpack_carb_cat_pink.png', '/assets/accessories/300x140/backpack_carb_cat_pink.png', 32],
   ['blue', 'Автомобіль · Mercedes-Benz W221 AMG W12', 'vehicle', '6692', '/assets/vehicles/300x160/6692.png', 33],
   ['blue', 'Автомобіль · BMW M3 E92', 'vehicle', '6635', '/assets/vehicles/300x160/6635.png', 34],
   ['blue', 'Автомобіль · Audi A4 Quattro', 'vehicle', '6680', '/assets/vehicles/300x160/6680.png', 35],
-  ['blue', 'Скін · Літа', 'skin', '6831', '/assets/skins/130x160/6831.png', 36],
-  ['blue', 'Скін · Грабіжник', 'skin', '101', '/assets/skins/130x160/101.png', 37],
-  ['blue', 'Аксесуар · Маска «Злий анонім»', 'accessory', 'Airsoft_mask.png', '/assets/accessories/300x140/Airsoft_mask.png', 38],
-  ['blue', 'Аксесуар · Бронежилет', 'accessory', 'armor_body_purple.png', '/assets/accessories/300x140/armor_body_purple.png', 39],
+  ['blue', 'Скін · Літа', 'skin', '6720', '/assets/skins/130x160/6720.png', 36],
+  ['blue', 'Скін · Грабіжник', 'skin', '91', '/assets/skins/130x160/91.png', 37],
+  ['blue', 'Аксесуар · Маска «Злий анонім»', 'accessory', 'mask_evil_anonymous.png', '/assets/accessories/300x140/mask_evil_anonymous.png', 38],
+  ['blue', 'Аксесуар · Бронежилет', 'accessory', 'body_armor_wroom.png', '/assets/accessories/300x140/body_armor_wroom.png', 39],
   ['blue', 'Автомобіль · Lexus RX350', 'vehicle', '6583', '/assets/vehicles/300x160/6583.png', 40],
   ['blue', 'Автомобіль · Електросамокат', 'vehicle', '510', '/assets/vehicles/300x160/510.png', 41],
-  ['blue', 'Аксесуар · Вогняна рок-гітара', 'accessory', 'academic_heat.png', '/assets/accessories/300x140/academic_heat.png', 42],
+  ['blue', 'Аксесуар · Вогняна рок-гітара', 'accessory', 'guitar4.png', '/assets/accessories/300x140/guitar4.png', 42],
   ['blue', 'Предмет · Слот для авто', 'item', 'vehicle_slot', '/assets/accessories/300x140/armor_body_cash.png', 43],
-  ['blue', 'Скін · Спортивний', 'skin', '83', '/assets/skins/130x160/83.png', 44],
+  ['blue', 'Скін · Спортивний', 'skin', '6730', '/assets/skins/130x160/6730.png', 44],
   ['blue', 'Предмет · Мотоблок', 'item', 'motoblock', '/assets/accessories/300x140/engine.png', 45],
   ['blue', 'Автомобіль · Fiat 2107 1.6 16V', 'vehicle', '6630', '/assets/vehicles/300x160/6630.png', 46],
   ['blue', 'Предмет · Корпус радіосумки', 'item', 'radio_case', '/assets/accessories/300x140/backpack.png', 47],
@@ -106,7 +106,7 @@ const defaultPrizes = [
   ['white', 'Преміум · 1 день', 'premium', '86400', '/assets/skins/130x160/6791.png', 51],
   ['white', 'Мото · Kawasaki Barako 175', 'vehicle', '581', '/assets/vehicles/300x160/581.png', 52],
   ['white', 'Автомобіль · Chevrolet Aveo', 'vehicle', '6564', '/assets/vehicles/300x160/6564.png', 53],
-  ['white', 'Скін · Байкерша', 'skin', '6845', '/assets/skins/130x160/6845.png', 54],
+  ['white', 'Скін · Байкерша', 'skin', '145', '/assets/skins/130x160/145.png', 54],
   ['white', 'Скін · Курортниця', 'skin', '39', '/assets/skins/130x160/39.png', 55],
   ['white', 'Гроші · 250 000', 'money', '250000', '/assets/accessories/300x140/armor_body_cash.png', 56],
   ['white', 'Досвід · 10 000 XP', 'experience', '10000', '/assets/accessories/300x140/animal_eagle.png', 57],
@@ -128,10 +128,11 @@ const defaultPrizes = [
   ['white', 'Предмет · Акумулятор', 'item', 'battery', '/assets/accessories/300x140/armor_body_purple.png', 73],
   ['white', 'Гроші · 100 000', 'money', '100000', '/assets/accessories/300x140/armor_body_cash.png', 74],
   ['white', 'Автомобіль · Daewoo Matiz', 'vehicle', '438', '/assets/vehicles/300x160/438.png', 75],
-  ['white', 'Автомобіль · ЗАЗ Таврія', 'vehicle', '6630', '/assets/vehicles/300x160/6630.png', 76],
+  ['white', 'Автомобіль · ЗАЗ Таврія', 'vehicle', '467', '/assets/vehicles/300x160/467.png', 76],
   ['white', 'Досвід · 5 000 XP', 'experience', '5000', '/assets/accessories/300x140/animal_eagle.png', 77],
   ['white', 'Предмет · Інструмент x1', 'item', 'tool', '/assets/accessories/300x140/academic_heat.png', 78],
 ];
+const excludedRewardTypes = new Set(['money', 'experience', 'premium', 'item', 'donate']);
 
 async function ensureSchema(db) {
   await db.query(`CREATE TABLE IF NOT EXISTS site_roulette_prizes (
@@ -184,11 +185,35 @@ async function ensureSchema(db) {
   await db.query("UPDATE site_roulette_players p LEFT JOIN site_roulette_history h ON h.player_id=p.player_id SET p.free_spins=10 WHERE p.free_spins=1 AND h.player_id IS NULL");
   await db.query("INSERT IGNORE INTO site_settings (section,setting_key,setting_value,value_type) VALUES ('roulette','spin_price','89','number')");
   const [[snapshot]] = await db.query("SELECT setting_value FROM site_settings WHERE section='roulette' AND setting_key='reference_catalog_version' LIMIT 1");
-  if (snapshot?.setting_value !== '2026-09-21') {
-    for (const [quality, title, rewardType, rewardValue, imageUrl, sortOrder] of defaultPrizes) {
+  if (snapshot?.setting_value !== '2026-09-23') {
+    for (const [quality, title, rewardType, rewardValue, imageUrl, sortOrder] of defaultPrizes.filter(([, , rewardType]) => !excludedRewardTypes.has(rewardType))) {
       await db.query('INSERT INTO site_roulette_prizes (quality,title,reward_type,reward_value,image_url,weight,sort_order) SELECT ?,?,?,?,?,?,? FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM site_roulette_prizes WHERE title=? LIMIT 1)', [quality, title, rewardType, rewardValue, imageUrl, qualities[quality].weight, sortOrder, title]);
     }
-    await db.query("INSERT INTO site_settings (section,setting_key,setting_value,value_type) VALUES ('roulette','reference_catalog_version','2026-09-21','text') ON DUPLICATE KEY UPDATE setting_value=VALUES(setting_value),value_type=VALUES(value_type)");
+    await db.query("UPDATE site_roulette_prizes SET is_active=0 WHERE reward_type IN ('money','experience','premium','item','donate')");
+    const imageCorrections = [
+      ['Скін · Пекельна леді', 'skin', '156', '/assets/skins/130x160/156.png'],
+      ['Скін · Грабіжник', 'skin', '91', '/assets/skins/130x160/91.png'],
+      ['Скін · Спортивний', 'skin', '6730', '/assets/skins/130x160/6730.png'],
+      ['Скін · Байкерша', 'skin', '145', '/assets/skins/130x160/145.png'],
+      ['Скін · Футболіст', 'skin', '6722', '/assets/skins/130x160/6722.png'],
+      ['Скін · Мовчазний титан', 'skin', '6848', '/assets/skins/130x160/6848.png'],
+      ['Скін · Вуличний стиль', 'skin', '6864', '/assets/skins/130x160/6864.png'],
+      ['Скін · Стильний мафіозі', 'skin', '6784', '/assets/skins/130x160/6784.png'],
+      ['Автомобіль · BMW M8', 'vehicle', '474', '/assets/vehicles/300x160/474.png'],
+      ['Автомобіль · Porsche 911 GT3', 'vehicle', '575', '/assets/vehicles/300x160/575.png'],
+      ['Автомобіль · McLaren 720S', 'vehicle', '545', '/assets/vehicles/300x160/545.png'],
+      ['Автомобіль · ЗАЗ Таврія', 'vehicle', '467', '/assets/vehicles/300x160/467.png'],
+      ['Аксесуар · Рожеві крила', 'accessory', 'luxe_pirl_pink.png', '/assets/accessories/300x140/luxe_pirl_pink.png'],
+      ['Аксесуар · Розкішні крила', 'accessory', 'luxe_pirl_gradient.png', '/assets/accessories/300x140/luxe_pirl_gradient.png'],
+      ['Аксесуар · Рюкзак', 'accessory', 'bag_smile3.png', '/assets/accessories/300x140/bag_smile3.png'],
+      ['Аксесуар · Маска «Злий анонім»', 'accessory', 'mask_evil_anonymous.png', '/assets/accessories/300x140/mask_evil_anonymous.png'],
+      ['Аксесуар · Бронежилет', 'accessory', 'body_armor_wroom.png', '/assets/accessories/300x140/body_armor_wroom.png'],
+    ];
+    for (const [title, rewardType, rewardValue, imageUrl] of imageCorrections) {
+      await db.query('UPDATE site_roulette_prizes SET reward_value=?,image_url=? WHERE title=? AND reward_type=?', [rewardValue, imageUrl, title, rewardType]);
+      await db.query('UPDATE site_roulette_wins SET reward_value=?,image_url=? WHERE title=? AND reward_type=?', [rewardValue, imageUrl, title, rewardType]);
+    }
+    await db.query("INSERT INTO site_settings (section,setting_key,setting_value,value_type) VALUES ('roulette','reference_catalog_version','2026-09-23','text') ON DUPLICATE KEY UPDATE setting_value=VALUES(setting_value),value_type=VALUES(value_type)");
   }
 }
 
