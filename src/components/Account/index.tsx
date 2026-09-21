@@ -165,7 +165,7 @@ export default function Account() {
 
   if (player) return (
     <div className="account-page">
-      <header className="account-header"><Brand/><nav className="account-nav" aria-label="Навігація кабінету"><a href="/">Головна</a><a href="/wiki">Вікі</a><a href="/donate">Донат</a><a href="/forum">Форум</a></nav><button className="account-back" onClick={logout}><LogOut size={16}/> ВИЙТИ</button></header>
+      <header className="account-header"><Brand/><nav className="account-nav" aria-label="Навігація кабінету"><a href="/">Головна</a><a href="/roulette">Рулетка</a><a href="/wiki">Вікі</a><a href="/donate">Донат</a><a href="/forum">Форум</a></nav><button className="account-back" onClick={logout}><LogOut size={16}/> ВИЙТИ</button></header>
       <main className="account-main">
         <div className="account-dashboard-heading"><div><p className="eyebrow"><span/> PERSONAL SPACE</p><h1>КАБІНЕТ <em>{player.nickname}</em></h1><p className="account-muted">Ігровий профіль PRIME RP та особиста статистика.</p></div><div className="account-level"><span>РІВЕНЬ</span><strong>{player.level}</strong></div></div>
         <section className="account-grid">

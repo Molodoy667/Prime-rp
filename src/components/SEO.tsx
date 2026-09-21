@@ -6,6 +6,7 @@ const pages: Record<string,SeoPage> = {
   '/donate': { title: 'Донат-магазин PRIME RP — можливості для гравців', description: 'Офіційний донат-магазин PRIME RP: PRIME-бонуси, підписки та додаткові можливості для підтримки проєкту.', keywords: 'донат PRIME RP, магазин PRIME RP, підписка MTA, Era Prime бонуси' },
   '/forum': { title: 'Форум PRIME RP — спільнота гравців', description: 'Офіційний форум PRIME RP: новини, підтримка, обговорення та пропозиції гравців.' },
   '/account': { title: 'Особистий кабінет PRIME RP', description: 'Увійдіть до особистого кабінету PRIME RP, щоб переглянути свій ігровий профіль та статистику.' },
+  '/roulette': { title: 'Рулетка PRIME RP — призи для гравців', description: 'Ігрова рулетка PRIME RP зі скінами, аксесуарами, транспортом та іншими нагородами.', robots: 'noindex,nofollow' },
   '/rules': { title: 'Правила PRIME RP', description: 'Офіційні правила спільноти та ігрового проєкту PRIME RP.' },
   '/terms': { title: 'Умови користування — PRIME RP', description: 'Умови користування сайтом і сервісами PRIME RP.' },
   '/privacy': { title: 'Політика конфіденційності — PRIME RP', description: 'Політика конфіденційності офіційного сайту PRIME RP.' },

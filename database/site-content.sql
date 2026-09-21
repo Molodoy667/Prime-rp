@@ -38,6 +38,40 @@ CREATE TABLE IF NOT EXISTS `site_settings` (
   PRIMARY KEY (`section`, `setting_key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE IF NOT EXISTS `site_roulette_prizes` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `quality` VARCHAR(20) NOT NULL,
+  `title` VARCHAR(180) NOT NULL,
+  `reward_type` VARCHAR(40) NOT NULL,
+  `reward_value` VARCHAR(180) NOT NULL DEFAULT '',
+  `image_url` VARCHAR(500) NULL,
+  `weight` DECIMAL(10,2) NOT NULL DEFAULT 1,
+  `is_active` TINYINT(1) NOT NULL DEFAULT 1,
+  `sort_order` INT NOT NULL DEFAULT 0,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`), KEY `roulette_quality` (`quality`,`is_active`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `site_roulette_players` (
+  `player_id` INT UNSIGNED NOT NULL,
+  `free_spins` INT NOT NULL DEFAULT 1,
+  `balance` INT NOT NULL DEFAULT 0,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`player_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `site_roulette_history` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `player_id` INT UNSIGNED NOT NULL,
+  `prize_id` BIGINT UNSIGNED NULL,
+  `quality` VARCHAR(20) NOT NULL,
+  `title` VARCHAR(180) NOT NULL,
+  `image_url` VARCHAR(500) NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`), KEY `roulette_history_player` (`player_id`,`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 INSERT IGNORE INTO `site_news` (`slug`,`title`,`category`,`body`,`image_url`,`is_placeholder`,`sort_order`) VALUES
 ('opening','ВЕЛИКЕ ВІДКРИТТЯ PRIME RP','АНОНС','Тут з’явиться офіційний анонс відкриття PRIME RP: дата запуску, доступні сервери та інструкція для перших гравців. Дату відкриття ще не вказано. Це приклад публікації, а не оголошення про запуск.','/assets/hero-1600.webp',1,1),
 ('world','ЗНАЙОМСТВО ЗІ СВІТОМ PRIME','СВІТ PRIME','Майбутня рубрика про міста, атмосферу та можливості PRIME RP. Після публікації офіційних матеріалів тут можна буде дізнатися про ігровий світ. Наразі це приклад статті; ілюстрації є концепт-артами.','/assets/city-1600.webp',1,2),
