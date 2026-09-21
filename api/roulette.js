@@ -24,6 +24,18 @@ const defaultPrizes = [
   ['red', 'Аксесуар · Розкішні крила', 'accessory', 'animal_fenix.png', '/assets/accessories/300x140/animal_fenix.png', 3],
   ['yellow', 'Автомобіль · Mercedes-AMG G63 2022', 'vehicle', '6535', '/assets/vehicles/300x160/6535.png', 1],
   ['yellow', 'Гроші · 1 000 000', 'money', '1000000', '/assets/accessories/300x140/armor_body_cash.png', 2],
+  ['white', 'Гроші · 50 000', 'money', '50000', '/assets/accessories/300x140/armor_body_cash.png', 4],
+  ['white', 'Досвід · 10 000 XP', 'experience', '10000', '/assets/accessories/300x140/animal_eagle.png', 5],
+  ['white', 'Предмет · Каністра', 'item', 'fuel_canister', '/assets/accessories/300x140/fuel_canister.png', 6],
+  ['blue', 'Гроші · 500 000', 'money', '500000', '/assets/accessories/300x140/armor_body_cash.png', 4],
+  ['blue', 'Преміум · 3 дні', 'premium', '259200', '/assets/skins/130x160/6791.png', 5],
+  ['blue', 'Скін · Футболіст', 'skin', '73', '/assets/skins/130x160/73.png', 6],
+  ['purple', 'Автомобіль · BMW M8', 'vehicle', '6586', '/assets/vehicles/300x160/6586.png', 4],
+  ['purple', 'Аксесуар · Рюкзак', 'accessory', 'backpack_modern.png', '/assets/accessories/300x140/backpack_modern.png', 5],
+  ['red', 'Скін · Стильний мафіозі', 'skin', '120', '/assets/skins/130x160/120.png', 4],
+  ['red', 'Автомобіль · Porsche 911 GT3', 'vehicle', '6697', '/assets/vehicles/300x160/6697.png', 5],
+  ['yellow', 'Автомобіль · McLaren 720S', 'vehicle', '6698', '/assets/vehicles/300x160/6698.png', 3],
+  ['yellow', 'Скін · Пекельна леді', 'skin', '257', '/assets/skins/130x160/257.png', 4],
 ];
 
 async function ensureSchema(db) {
@@ -43,7 +55,7 @@ async function ensureSchema(db) {
   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`);
   await db.query(`CREATE TABLE IF NOT EXISTS site_roulette_players (
     player_id INT UNSIGNED NOT NULL,
-    free_spins INT NOT NULL DEFAULT 1,
+    free_spins INT NOT NULL DEFAULT 10,
     balance INT NOT NULL DEFAULT 0,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (player_id)
@@ -58,10 +70,28 @@ async function ensureSchema(db) {
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id), KEY roulette_history_player (player_id, created_at)
   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`);
+  await db.query(`CREATE TABLE IF NOT EXISTS site_roulette_wins (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    player_id INT UNSIGNED NOT NULL,
+    prize_id BIGINT UNSIGNED NULL,
+    quality VARCHAR(20) NOT NULL,
+    title VARCHAR(180) NOT NULL,
+    reward_type VARCHAR(40) NOT NULL,
+    reward_value VARCHAR(180) NOT NULL DEFAULT '',
+    image_url VARCHAR(500) NULL,
+    sell_price INT UNSIGNED NOT NULL DEFAULT 0,
+    status ENUM('pending','claimed','sold') NOT NULL DEFAULT 'pending',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    claimed_at TIMESTAMP NULL,
+    PRIMARY KEY (id), KEY roulette_wins_player (player_id, status, created_at)
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`);
+  // Migrate untouched wallets created by the first version from 1 to the new 10-spin allowance.
+  await db.query("UPDATE site_roulette_players p LEFT JOIN site_roulette_history h ON h.player_id=p.player_id SET p.free_spins=10 WHERE p.free_spins=1 AND h.player_id IS NULL");
+  await db.query("INSERT IGNORE INTO site_settings (section,setting_key,setting_value,value_type) VALUES ('roulette','spin_price','89','number')");
   const [[count]] = await db.query('SELECT COUNT(*) count FROM site_roulette_prizes');
-  if (!Number(count.count)) {
+  if (Number(count.count) < defaultPrizes.length) {
     for (const [quality, title, rewardType, rewardValue, imageUrl, sortOrder] of defaultPrizes) {
-      await db.query('INSERT INTO site_roulette_prizes (quality,title,reward_type,reward_value,image_url,weight,sort_order) VALUES (?,?,?,?,?,?,?)', [quality, title, rewardType, rewardValue, imageUrl, qualities[quality].weight, sortOrder]);
+      await db.query('INSERT INTO site_roulette_prizes (quality,title,reward_type,reward_value,image_url,weight,sort_order) SELECT ?,?,?,?,?,?,? FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM site_roulette_prizes WHERE title=? LIMIT 1)', [quality, title, rewardType, rewardValue, imageUrl, qualities[quality].weight, sortOrder, title]);
     }
   }
 }
@@ -69,6 +99,23 @@ async function ensureSchema(db) {
 function safePlayerId(value) {
   const id = Number(value);
   return Number.isInteger(id) && id > 0 ? id : 0;
+}
+
+async function getRouletteConfig(db) {
+  const [settingRows] = await db.query("SELECT setting_value FROM site_settings WHERE section='roulette' AND setting_key='spin_price' LIMIT 1");
+  const spinPrice = Math.max(1, Math.floor(Number(settingRows[0]?.setting_value) || 89));
+  const [columnRows] = await db.query("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='ugta_players'");
+  const columns = new Set(columnRows.map(row => String(row.COLUMN_NAME)));
+  const freeSpinColumn = ['free_spin','free_spins','roulette_free_spins','roulette_spins','free_roulette_spins','case_free_spins'].find(name => columns.has(name)) || null;
+  return { spinPrice, freeSpinColumn };
+}
+
+function identifier(name) { return `\`${String(name).replace(/`/g, '')}\``; }
+
+async function getPlayerRouletteWallet(db, playerId, config) {
+  const freeColumn = config.freeSpinColumn ? `,${identifier(config.freeSpinColumn)}` : '';
+  const [[player]] = await db.query(`SELECT donate${freeColumn} FROM ugta_players WHERE id=? LIMIT 1`, [playerId]);
+  return { donate: Number(player?.donate || 0), freeSpins: config.freeSpinColumn ? Number(player?.[config.freeSpinColumn] || 0) : 0 };
 }
 
 function draw(prizes) {
@@ -94,10 +141,11 @@ export default async function handler(request, response) {
       if (!admin && !playerId) return json(response, 401, { error: 'Потрібна авторизація' });
       const [prizeRows] = await db.query(admin ? 'SELECT * FROM site_roulette_prizes ORDER BY quality, sort_order, id' : 'SELECT * FROM site_roulette_prizes WHERE is_active=1 ORDER BY quality, sort_order, id');
       if (admin) return json(response, 200, { prizes: prizeRows.map(normalizePrize), qualities });
-      await db.query('INSERT IGNORE INTO site_roulette_players (player_id) VALUES (?)', [playerId]);
-      const [[wallet]] = await db.query('SELECT free_spins,balance FROM site_roulette_players WHERE player_id=?', [playerId]);
+      const config = await getRouletteConfig(db);
+      const wallet = await getPlayerRouletteWallet(db, playerId, config);
       const [historyRows] = await db.query('SELECT id,quality,title,image_url imageUrl,created_at createdAt FROM site_roulette_history WHERE player_id=? ORDER BY id DESC LIMIT 30', [playerId]);
-      return json(response, 200, { prizes: prizeRows.map(normalizePrize), qualities, freeSpins: Number(wallet?.free_spins || 0), balance: Number(wallet?.balance || 0), history: historyRows });
+      const [winRows] = await db.query("SELECT id,quality,title,reward_type rewardType,reward_value rewardValue,image_url imageUrl,sell_price sellPrice,status,created_at createdAt FROM site_roulette_wins WHERE player_id=? ORDER BY id DESC LIMIT 30", [playerId]);
+      return json(response, 200, { prizes: prizeRows.map(normalizePrize), qualities, freeSpins: wallet.freeSpins, balance: wallet.donate, donate: wallet.donate, spinPrice: config.spinPrice, freeSpinColumn: config.freeSpinColumn, history: historyRows, wins: winRows });
     }
     if (request.method !== 'POST') return json(response, 405, { error: 'Метод не підтримується' });
     const input = request.body || {};
@@ -106,14 +154,38 @@ export default async function handler(request, response) {
       if (!playerId) return json(response, 401, { error: 'Потрібна авторизація' });
       const [prizeRows] = await db.query('SELECT * FROM site_roulette_prizes WHERE is_active=1 ORDER BY id');
       if (!prizeRows.length) return json(response, 503, { error: 'Призи ще не налаштовані' });
-      await db.query('INSERT IGNORE INTO site_roulette_players (player_id) VALUES (?)', [playerId]);
-      const [[wallet]] = await db.query('SELECT free_spins,balance FROM site_roulette_players WHERE player_id=?', [playerId]);
-      if (Number(wallet.free_spins) <= 0 && Number(wallet.balance) <= 0) return json(response, 400, { error: 'Безкоштовні обертання закінчилися' });
-      const useFree = Number(wallet.free_spins) > 0;
-      await db.query('UPDATE site_roulette_players SET free_spins=GREATEST(0,free_spins-?), balance=GREATEST(0,balance-?) WHERE player_id=?', [useFree ? 1 : 0, useFree ? 0 : 1, playerId]);
+      const config = await getRouletteConfig(db);
+      const wallet = await getPlayerRouletteWallet(db, playerId, config);
+      const useFree = wallet.freeSpins > 0;
+      if (useFree && config.freeSpinColumn) {
+        const result = await db.query(`UPDATE ugta_players SET ${identifier(config.freeSpinColumn)}=GREATEST(0,${identifier(config.freeSpinColumn)}-1) WHERE id=? AND ${identifier(config.freeSpinColumn)}>0`, [playerId]);
+        if (!result[0].affectedRows) return json(response, 409, { error: 'Безкоштовне обертання вже використано, повторіть запит' });
+      } else {
+        const result = await db.query('UPDATE ugta_players SET donate=donate-? WHERE id=? AND donate>=?', [config.spinPrice, playerId, config.spinPrice]);
+        if (!result[0].affectedRows) return json(response, 400, { error: `Недостатньо донату. Ціна обертання: ${config.spinPrice}` });
+      }
       const prize = draw(prizeRows);
       await db.query('INSERT INTO site_roulette_history (player_id,prize_id,quality,title,image_url) VALUES (?,?,?,?,?)', [playerId, prize.id, prize.quality, prize.title, prize.image_url]);
-      return json(response, 200, { prize: normalizePrize(prize), freeSpins: Math.max(0, Number(wallet.free_spins) - (useFree ? 1 : 0)), balance: Math.max(0, Number(wallet.balance) - (useFree ? 0 : 1)) });
+      const sellPrice = Math.max(0, Math.round(Number(prize.reward_value) * 0.35)) || (prize.quality === 'yellow' ? 500000 : prize.quality === 'red' ? 150000 : prize.quality === 'purple' ? 50000 : prize.quality === 'blue' ? 15000 : 5000);
+      const [winResult] = await db.query('INSERT INTO site_roulette_wins (player_id,prize_id,quality,title,reward_type,reward_value,image_url,sell_price) VALUES (?,?,?,?,?,?,?,?)', [playerId, prize.id, prize.quality, prize.title, prize.reward_type, prize.reward_value, prize.image_url, sellPrice]);
+      return json(response, 200, { prize: normalizePrize(prize), winId: Number(winResult.insertId), sellPrice, freeSpins: Math.max(0, wallet.freeSpins - (useFree ? 1 : 0)), balance: Math.max(0, wallet.donate - (useFree ? 0 : config.spinPrice)), donate: Math.max(0, wallet.donate - (useFree ? 0 : config.spinPrice)), spinPrice: config.spinPrice });
+    }
+    if (input.action === 'claim' || input.action === 'sell') {
+      if (!playerId) return json(response, 401, { error: 'Потрібна авторизація' });
+      const winId = Number(input.winId);
+      if (!Number.isInteger(winId) || winId < 1) return json(response, 400, { error: 'Невірний виграш' });
+      const [[win]] = await db.query("SELECT * FROM site_roulette_wins WHERE id=? AND player_id=? AND status='pending' LIMIT 1", [winId, playerId]);
+      if (!win) return json(response, 409, { error: 'Виграш вже оброблено або не знайдено' });
+      if (input.action === 'sell') {
+        await db.query("UPDATE site_roulette_wins SET status='sold',claimed_at=CURRENT_TIMESTAMP WHERE id=? AND player_id=? AND status='pending'", [winId, playerId]);
+        await db.query('UPDATE ugta_players SET donate=donate+? WHERE id=?', [win.sell_price, playerId]);
+        return json(response, 200, { ok: true, action: 'sold', amount: Number(win.sell_price) });
+      }
+      if (win.reward_type === 'money') await db.query('UPDATE ugta_players SET money=money+? WHERE id=?', [Math.max(0, Number(win.reward_value) || 0), playerId]);
+      else if (win.reward_type === 'premium') await db.query('UPDATE ugta_players SET premium_time_left=premium_time_left+? WHERE id=?', [Math.max(0, Number(win.reward_value) || 0), playerId]);
+      else if (win.reward_type === 'experience') await db.query('UPDATE ugta_players SET exp=exp+? WHERE id=?', [Math.max(0, Number(win.reward_value) || 0), playerId]);
+      await db.query("UPDATE site_roulette_wins SET status='claimed',claimed_at=CURRENT_TIMESTAMP WHERE id=? AND player_id=? AND status='pending'", [winId, playerId]);
+      return json(response, 200, { ok: true, action: 'claimed', directGameCredit: ['money','premium','experience'].includes(win.reward_type), gameTables: ['money','premium','experience'].includes(win.reward_type) ? ['ugta_players'] : [] });
     }
     if (!(await requireAdmin(db, safePlayerId(input.actorId)))) return json(response, 403, { error: 'Недостатньо прав' });
     if (input.action === 'delete') { await db.query('DELETE FROM site_roulette_prizes WHERE id=?', [Number(input.id)]); return json(response, 200, { ok: true }); }

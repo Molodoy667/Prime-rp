@@ -1,4 +1,8 @@
 -- Site-owned content tables. These are intentionally prefixed with site_.
+-- The game server awards PAYDAY roulette spins in the existing player table.
+ALTER TABLE `ugta_players`
+  ADD COLUMN `free_spin` INT NOT NULL DEFAULT 0;
+
 CREATE TABLE IF NOT EXISTS `site_news` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `slug` VARCHAR(160) NOT NULL,
@@ -38,6 +42,8 @@ CREATE TABLE IF NOT EXISTS `site_settings` (
   PRIMARY KEY (`section`, `setting_key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+INSERT IGNORE INTO `site_settings` (`section`,`setting_key`,`setting_value`,`value_type`) VALUES ('roulette','spin_price','89','number');
+
 CREATE TABLE IF NOT EXISTS `site_roulette_prizes` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `quality` VARCHAR(20) NOT NULL,
@@ -55,7 +61,7 @@ CREATE TABLE IF NOT EXISTS `site_roulette_prizes` (
 
 CREATE TABLE IF NOT EXISTS `site_roulette_players` (
   `player_id` INT UNSIGNED NOT NULL,
-  `free_spins` INT NOT NULL DEFAULT 1,
+  `free_spins` INT NOT NULL DEFAULT 10,
   `balance` INT NOT NULL DEFAULT 0,
   `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`player_id`)
@@ -70,6 +76,22 @@ CREATE TABLE IF NOT EXISTS `site_roulette_history` (
   `image_url` VARCHAR(500) NULL,
   `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`), KEY `roulette_history_player` (`player_id`,`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `site_roulette_wins` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `player_id` INT UNSIGNED NOT NULL,
+  `prize_id` BIGINT UNSIGNED NULL,
+  `quality` VARCHAR(20) NOT NULL,
+  `title` VARCHAR(180) NOT NULL,
+  `reward_type` VARCHAR(40) NOT NULL,
+  `reward_value` VARCHAR(180) NOT NULL DEFAULT '',
+  `image_url` VARCHAR(500) NULL,
+  `sell_price` INT UNSIGNED NOT NULL DEFAULT 0,
+  `status` ENUM('pending','claimed','sold') NOT NULL DEFAULT 'pending',
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `claimed_at` TIMESTAMP NULL,
+  PRIMARY KEY (`id`), KEY `roulette_wins_player` (`player_id`,`status`,`created_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 INSERT IGNORE INTO `site_news` (`slug`,`title`,`category`,`body`,`image_url`,`is_placeholder`,`sort_order`) VALUES
