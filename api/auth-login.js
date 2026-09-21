@@ -20,7 +20,7 @@ export default async function handler(request, response) {
               clan_id, clan_exp, clan_rank, clan_role, job_class, job_id,
               military_level, military_exp, subscription_time_left, subscription_total,
               subscription_transactions, subscription_last_date, business_coins, cinema_balance,
-              playing_time, reg_date, last_date, last_enter_date, birthday, sessions_counter,
+              playing_time, reg_date, last_date, last_enter_date, birthday, sessions_counter, permanent_data,
               (SELECT COUNT(*) FROM ugta_apartments a WHERE a.user_id = ugta_players.id) +
               (SELECT COUNT(*) FROM ugta_viphouses h WHERE h.owner = ugta_players.id) housing_count,
               CONCAT_WS(', ',
@@ -36,6 +36,17 @@ export default async function handler(request, response) {
     if (!player || player.banned || player.password !== password) {
       return json(response, 401, { error: 'Неправильний логін або пароль' });
     }
+    // The game stores the active model inside permanent_data.skins.s1. The
+    // legacy `skin` column can remain the default model, so prefer the runtime
+    // value when it is available.
+    try {
+      const permanentData = typeof player.permanent_data === 'string' ? JSON.parse(player.permanent_data) : player.permanent_data;
+      const activeSkin = Number(permanentData?.skins?.s1 ?? permanentData?.skin ?? player.skin);
+      if (Number.isInteger(activeSkin) && activeSkin > 0) player.skin = activeSkin;
+    } catch {
+      // Keep the explicit SQL skin value when permanent_data is empty or invalid.
+    }
+    delete player.permanent_data;
     const [[vehicles], [apartments], [vipHouses], [businesses]] = await Promise.all([
       db.query("SELECT id, model, health, fuel, mileage, number_plate, creation_date FROM ugta_vehicles WHERE owner_pid=? AND (deleted IS NULL OR deleted=0) ORDER BY id", [`p:${player.id}`]),
       db.query('SELECT id, number, meter_type, sale_state, paid_days, time_to_pay, paid_upgrade FROM ugta_apartments WHERE user_id=? ORDER BY number', [player.id]),

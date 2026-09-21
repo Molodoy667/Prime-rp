@@ -59,6 +59,7 @@ INSERT IGNORE INTO `site_settings` (`section`,`setting_key`,`setting_value`,`val
 ('general','site_tagline','Україна. Твоя історія. Твої правила.','text'),
 ('general','contact_discord','#','url'),
 ('general','contact_telegram','#','url'),
+('general','social_links','[]','json'),
 ('news','news_section_title','ОСТАННІ НОВИНИ','text'),
 ('news','news_enabled','1','boolean'),
 ('launcher','download_url','','url'),
