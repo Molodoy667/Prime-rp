@@ -61,6 +61,76 @@ const defaultPrizes = [
   ['blue', 'Автомобіль · Citroen AMI', 'vehicle', '496', '/assets/vehicles/300x160/496.png', 8],
   ['white', 'Автомобіль · Skoda Octavia 7', 'vehicle', '6575', '/assets/vehicles/300x160/6575.png', 9],
   ['white', 'Автомобіль · Електросамокат', 'vehicle', '510', '/assets/vehicles/300x160/510.png', 9],
+  // Статичний знімок каталогу Ukraine GTA на 21.09.2026.
+  ['yellow', 'Автомобіль · Lamborghini Terzo Millennio', 'vehicle', '6699', '/assets/vehicles/300x160/6699.png', 10],
+  ['yellow', 'Автомобіль · BMW M8', 'vehicle', '474', '/assets/vehicles/300x160/474.png', 11],
+  ['yellow', 'Автомобіль · Porsche 911 GT3 R 2019', 'vehicle', '575', '/assets/vehicles/300x160/575.png', 12],
+  ['yellow', 'Автомобіль · McLaren 720S', 'vehicle', '545', '/assets/vehicles/300x160/545.png', 13],
+  ['yellow', 'Автомобіль · BMW X5 Competition', 'vehicle', '6585', '/assets/vehicles/300x160/6585.png', 14],
+  ['red', 'Скін · Мовчазний титан', 'skin', '6848', '/assets/skins/130x160/6848.png', 15],
+  ['red', 'Скін · Швидка зірка', 'skin', '6847', '/assets/skins/130x160/6847.png', 16],
+  ['red', 'Скін · Стильний мачо', 'skin', '6784', '/assets/skins/130x160/6784.png', 17],
+  ['red', 'Скін · Пекельна леді', 'skin', '6791', '/assets/skins/130x160/6791.png', 18],
+  ['red', 'Скін · Футболіст', 'skin', '6816', '/assets/skins/130x160/6816.png', 19],
+  ['red', 'Мото · Kawasaki Ninja H2R', 'vehicle', '521', '/assets/vehicles/300x160/521.png', 20],
+  ['red', 'Аксесуар · Розкішні крила', 'accessory', 'luxe_pirl_gradient.png', '/assets/accessories/300x140/luxe_pirl_gradient.png', 21],
+  ['red', 'Автомобіль · Mercedes-Benz GT63s 4.0 V8', 'vehicle', '6529', '/assets/vehicles/300x160/6529.png', 22],
+  ['red', 'Автомобіль · Can-Am Maverick X3', 'vehicle', '434', '/assets/vehicles/300x160/434.png', 23],
+  ['purple', 'Автомобіль · Mercedes-Benz CLS 2011, 5.5 AMG', 'vehicle', '6546', '/assets/vehicles/300x160/6546.png', 24],
+  ['purple', 'Скін · Відважна лиходійка', 'skin', '6838', '/assets/skins/130x160/6838.png', 25],
+  ['purple', 'Скін · Джо Барбаро', 'skin', '159', '/assets/skins/130x160/159.png', 26],
+  ['purple', 'Скін · Дівчина дайвер', 'skin', '254', '/assets/skins/130x160/254.png', 27],
+  ['purple', 'Автомобіль · Mercedes-Benz W221 AMG W12', 'vehicle', '6692', '/assets/vehicles/300x160/6692.png', 28],
+  ['purple', 'Автомобіль · BMW M3 E92', 'vehicle', '6635', '/assets/vehicles/300x160/6635.png', 29],
+  ['purple', 'Аксесуар · Рюкзак Модний', 'accessory', 'backpack_fashion_panda.png', '/assets/accessories/300x140/backpack_fashion_panda.png', 30],
+  ['purple', 'Аксесуар · Неонові катани блакитно-зелені', 'accessory', 'academic_heat.png', '/assets/accessories/300x140/academic_heat.png', 31],
+  ['blue', 'Аксесуар · Рожевий веселий кіт', 'accessory', 'backpack_carb_cat_pink.png', '/assets/accessories/300x140/backpack_carb_cat_pink.png', 32],
+  ['blue', 'Автомобіль · Mercedes-Benz W221 AMG W12', 'vehicle', '6692', '/assets/vehicles/300x160/6692.png', 33],
+  ['blue', 'Автомобіль · BMW M3 E92', 'vehicle', '6635', '/assets/vehicles/300x160/6635.png', 34],
+  ['blue', 'Автомобіль · Audi A4 Quattro', 'vehicle', '6680', '/assets/vehicles/300x160/6680.png', 35],
+  ['blue', 'Скін · Літа', 'skin', '6831', '/assets/skins/130x160/6831.png', 36],
+  ['blue', 'Скін · Грабіжник', 'skin', '101', '/assets/skins/130x160/101.png', 37],
+  ['blue', 'Аксесуар · Маска «Злий анонім»', 'accessory', 'Airsoft_mask.png', '/assets/accessories/300x140/Airsoft_mask.png', 38],
+  ['blue', 'Аксесуар · Бронежилет', 'accessory', 'armor_body_purple.png', '/assets/accessories/300x140/armor_body_purple.png', 39],
+  ['blue', 'Автомобіль · Lexus RX350', 'vehicle', '6583', '/assets/vehicles/300x160/6583.png', 40],
+  ['blue', 'Автомобіль · Електросамокат', 'vehicle', '510', '/assets/vehicles/300x160/510.png', 41],
+  ['blue', 'Аксесуар · Вогняна рок-гітара', 'accessory', 'academic_heat.png', '/assets/accessories/300x140/academic_heat.png', 42],
+  ['blue', 'Предмет · Слот для авто', 'item', 'vehicle_slot', '/assets/accessories/300x140/armor_body_cash.png', 43],
+  ['blue', 'Скін · Спортивний', 'skin', '83', '/assets/skins/130x160/83.png', 44],
+  ['blue', 'Предмет · Мотоблок', 'item', 'motoblock', '/assets/accessories/300x140/engine.png', 45],
+  ['blue', 'Автомобіль · Fiat 2107 1.6 16V', 'vehicle', '6630', '/assets/vehicles/300x160/6630.png', 46],
+  ['blue', 'Предмет · Корпус радіосумки', 'item', 'radio_case', '/assets/accessories/300x140/backpack.png', 47],
+  ['blue', 'Предмет · Мікросхема', 'item', 'microchip', '/assets/accessories/300x140/microchip.png', 48],
+  ['white', 'Гроші · 500 000', 'money', '500000', '/assets/accessories/300x140/armor_body_cash.png', 49],
+  ['white', 'Автомобіль · Citroen AMI', 'vehicle', '496', '/assets/vehicles/300x160/496.png', 50],
+  ['white', 'Преміум · 1 день', 'premium', '86400', '/assets/skins/130x160/6791.png', 51],
+  ['white', 'Мото · Kawasaki Barako 175', 'vehicle', '581', '/assets/vehicles/300x160/581.png', 52],
+  ['white', 'Автомобіль · Chevrolet Aveo', 'vehicle', '6564', '/assets/vehicles/300x160/6564.png', 53],
+  ['white', 'Скін · Байкерша', 'skin', '6845', '/assets/skins/130x160/6845.png', 54],
+  ['white', 'Скін · Курортниця', 'skin', '39', '/assets/skins/130x160/39.png', 55],
+  ['white', 'Гроші · 250 000', 'money', '250000', '/assets/accessories/300x140/armor_body_cash.png', 56],
+  ['white', 'Досвід · 10 000 XP', 'experience', '10000', '/assets/accessories/300x140/animal_eagle.png', 57],
+  ['white', 'Предмет · Лобзик x1', 'item', 'jigsaw', '/assets/accessories/300x140/academic_heat.png', 58],
+  ['white', 'Предмет · Кусачки', 'item', 'cutters', '/assets/accessories/300x140/academic_heat.png', 59],
+  ['white', 'Предмет · Двигун', 'item', 'engine', '/assets/accessories/300x140/armor_body_purple.png', 60],
+  ['white', 'Автомобіль · Toyota Corolla AE86', 'vehicle', '477', '/assets/vehicles/300x160/477.png', 61],
+  ['white', 'Автомобіль · Skoda Octavia 7', 'vehicle', '6575', '/assets/vehicles/300x160/6575.png', 62],
+  ['white', 'Предмет · Каністра', 'item', 'fuel_canister', '/assets/accessories/300x140/fuel_canister.png', 63],
+  ['white', 'Гроші · 50 000', 'money', '50000', '/assets/accessories/300x140/armor_body_cash.png', 64],
+  ['white', 'Предмет · Ремкомплект', 'item', 'repair_kit', '/assets/accessories/300x140/armor_body_purple.png', 65],
+  ['white', 'Предмет · ЧІП М2', 'item', 'chip_m2', '/assets/accessories/300x140/armor_body_purple.png', 66],
+  ['white', 'Предмет · Підсилювач звуку', 'item', 'sound_amplifier', '/assets/accessories/300x140/boom_box.png', 67],
+  ['white', 'Предмет · Паяльник', 'item', 'soldering_iron', '/assets/accessories/300x140/academic_heat.png', 68],
+  ['white', 'Предмет · Харчова сіль', 'item', 'food_salt', '/assets/accessories/300x140/armor_body_cash.png', 69],
+  ['white', 'Предмет · Бекон', 'item', 'bacon', '/assets/accessories/300x140/armor_body_red_heart.png', 70],
+  ['white', 'Предмет · Протигаз професіонала', 'item', 'professional_gas_mask', '/assets/accessories/300x140/Airsoft_mask.png', 71],
+  ['white', 'Предмет · Адреналін', 'item', 'adrenaline', '/assets/accessories/300x140/academic_heat.png', 72],
+  ['white', 'Предмет · Акумулятор', 'item', 'battery', '/assets/accessories/300x140/armor_body_purple.png', 73],
+  ['white', 'Гроші · 100 000', 'money', '100000', '/assets/accessories/300x140/armor_body_cash.png', 74],
+  ['white', 'Автомобіль · Daewoo Matiz', 'vehicle', '438', '/assets/vehicles/300x160/438.png', 75],
+  ['white', 'Автомобіль · ЗАЗ Таврія', 'vehicle', '6630', '/assets/vehicles/300x160/6630.png', 76],
+  ['white', 'Досвід · 5 000 XP', 'experience', '5000', '/assets/accessories/300x140/animal_eagle.png', 77],
+  ['white', 'Предмет · Інструмент x1', 'item', 'tool', '/assets/accessories/300x140/academic_heat.png', 78],
 ];
 
 async function ensureSchema(db) {
@@ -113,11 +183,12 @@ async function ensureSchema(db) {
   // Migrate untouched wallets created by the first version from 1 to the new 10-spin allowance.
   await db.query("UPDATE site_roulette_players p LEFT JOIN site_roulette_history h ON h.player_id=p.player_id SET p.free_spins=10 WHERE p.free_spins=1 AND h.player_id IS NULL");
   await db.query("INSERT IGNORE INTO site_settings (section,setting_key,setting_value,value_type) VALUES ('roulette','spin_price','89','number')");
-  const [[count]] = await db.query('SELECT COUNT(*) count FROM site_roulette_prizes');
-  if (Number(count.count) < defaultPrizes.length) {
+  const [[snapshot]] = await db.query("SELECT setting_value FROM site_settings WHERE section='roulette' AND setting_key='reference_catalog_version' LIMIT 1");
+  if (snapshot?.setting_value !== '2026-09-21') {
     for (const [quality, title, rewardType, rewardValue, imageUrl, sortOrder] of defaultPrizes) {
       await db.query('INSERT INTO site_roulette_prizes (quality,title,reward_type,reward_value,image_url,weight,sort_order) SELECT ?,?,?,?,?,?,? FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM site_roulette_prizes WHERE title=? LIMIT 1)', [quality, title, rewardType, rewardValue, imageUrl, qualities[quality].weight, sortOrder, title]);
     }
+    await db.query("INSERT INTO site_settings (section,setting_key,setting_value,value_type) VALUES ('roulette','reference_catalog_version','2026-09-21','text') ON DUPLICATE KEY UPDATE setting_value=VALUES(setting_value),value_type=VALUES(value_type)");
   }
 }
 
@@ -230,14 +301,16 @@ export default async function handler(request, response) {
       const [[win]] = await db.query("SELECT * FROM site_roulette_wins WHERE id=? AND player_id=? AND status='pending' LIMIT 1", [winId, playerId]);
       if (!win) return json(response, 409, { error: 'Виграш вже оброблено або не знайдено' });
       if (input.action === 'sell') {
-        await db.query("UPDATE site_roulette_wins SET status='sold',claimed_at=CURRENT_TIMESTAMP WHERE id=? AND player_id=? AND status='pending'", [winId, playerId]);
+        const [settled] = await db.query("UPDATE site_roulette_wins SET status='sold',claimed_at=CURRENT_TIMESTAMP WHERE id=? AND player_id=? AND status='pending'", [winId, playerId]);
+        if (!settled.affectedRows) return json(response, 409, { error: 'Виграш вже оброблено або не знайдено' });
         await db.query('UPDATE ugta_players SET donate=donate+? WHERE id=?', [win.sell_price, playerId]);
         return json(response, 200, { ok: true, action: 'sold', amount: Number(win.sell_price) });
       }
       if (win.reward_type === 'money') await db.query('UPDATE ugta_players SET money=money+? WHERE id=?', [Math.max(0, Number(win.reward_value) || 0), playerId]);
       else if (win.reward_type === 'premium') await db.query('UPDATE ugta_players SET premium_time_left=premium_time_left+? WHERE id=?', [Math.max(0, Number(win.reward_value) || 0), playerId]);
       else if (win.reward_type === 'experience') await db.query('UPDATE ugta_players SET exp=exp+? WHERE id=?', [Math.max(0, Number(win.reward_value) || 0), playerId]);
-      await db.query("UPDATE site_roulette_wins SET status='claimed',claimed_at=CURRENT_TIMESTAMP WHERE id=? AND player_id=? AND status='pending'", [winId, playerId]);
+      const [settled] = await db.query("UPDATE site_roulette_wins SET status='claimed',claimed_at=CURRENT_TIMESTAMP WHERE id=? AND player_id=? AND status='pending'", [winId, playerId]);
+      if (!settled.affectedRows) return json(response, 409, { error: 'Виграш вже оброблено або не знайдено' });
       return json(response, 200, { ok: true, action: 'claimed', directGameCredit: ['money','premium','experience'].includes(win.reward_type), gameTables: ['money','premium','experience'].includes(win.reward_type) ? ['ugta_players'] : [] });
     }
     if (!(await requireAdmin(db, safePlayerId(input.actorId)))) return json(response, 403, { error: 'Недостатньо прав' });

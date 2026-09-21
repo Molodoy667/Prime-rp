@@ -22,6 +22,22 @@
 .roulette-result-card::before,.prize-card::before,.history-card::before,.roulette-featured-card::before{content:"";position:absolute;z-index:-1;inset:13% 16% 18%;border:1px solid color-mix(in srgb,var(--quality),transparent 35%);border-radius:28px;transform:rotate(45deg) scale(.72);background:radial-gradient(circle at 50% 35%,color-mix(in srgb,var(--quality),transparent 66%),transparent 70%);box-shadow:0 0 26px color-mix(in srgb,var(--quality),transparent 65%),inset 0 0 28px color-mix(in srgb,var(--quality),transparent 82%)}
 .roulette-result-card::after,.prize-card::after,.history-card::after,.roulette-featured-card::after{content:"";position:absolute;z-index:-1;left:8%;right:8%;bottom:0;height:2px;background:var(--quality);box-shadow:0 0 12px var(--quality)}
 .roulette-result-card img,.prize-card img,.history-card img,.roulette-featured-card img{position:relative;z-index:1;filter:drop-shadow(0 12px 10px #000b)}
+.roulette-machine{perspective:1500px;perspective-origin:50% 42%;background:radial-gradient(ellipse at center,#27202a 0,#13131b 43%,#0b0c12 78%);box-shadow:inset 0 20px 45px #0008,inset 0 -20px 45px #0008}
+.roulette-machine::before{content:"";position:absolute;inset:20px 0;border:1px solid #ffffff12;border-radius:24px;box-shadow:inset 0 0 35px #ff75451c,0 0 40px #0008;pointer-events:none}
+.roulette-machine::after{content:"";position:absolute;z-index:2;inset:0;pointer-events:none;background:linear-gradient(90deg,#0b0c12 0,transparent 13%,transparent 87%,#0b0c12 100%)}
+.roulette-track{position:relative;z-index:1;gap:18px;transform-style:preserve-3d;transform-origin:center center;transition:transform 2.4s cubic-bezier(.12,.74,.15,1)}
+.roulette-track:not(.rolling) .roulette-result-card:nth-child(1){transform:translateZ(-45px) rotateY(22deg) scale(.86);opacity:.54}
+.roulette-track:not(.rolling) .roulette-result-card:nth-child(2){transform:translateZ(0) rotateY(13deg) scale(.94);opacity:.8}
+.roulette-track:not(.rolling) .roulette-result-card:nth-child(3){transform:translateZ(24px) rotateY(6deg)}
+.roulette-track:not(.rolling) .roulette-result-card:nth-child(4){transform:translateZ(35px) scale(1.03);box-shadow:0 0 30px #ff754544,inset 0 0 30px #ffffff10}
+.roulette-track:not(.rolling) .roulette-result-card:nth-child(5){transform:translateZ(24px) rotateY(-6deg)}
+.roulette-track:not(.rolling) .roulette-result-card:nth-child(6){transform:translateZ(0) rotateY(-13deg) scale(.94);opacity:.8}
+.roulette-track:not(.rolling) .roulette-result-card:nth-child(n+7){transform:translateZ(-45px) rotateY(-22deg) scale(.86);opacity:.54}
+.roulette-track.rolling{transform:translate3d(-48%,0,105px) rotateX(11deg) rotateY(-8deg) scale(1.04);filter:drop-shadow(0 18px 35px #ff5a2e35)}
+.roulette-track.rolling .roulette-result-card{animation:roulette-card-shimmer 550ms ease-in-out infinite alternate}
+@keyframes roulette-card-shimmer{from{filter:brightness(.88) saturate(.95);transform:translateZ(0) rotateY(-2deg)}to{filter:brightness(1.18) saturate(1.25);transform:translateZ(26px) rotateY(2deg)}}
+.roulette-pointer{filter:drop-shadow(0 0 12px #ff5a2e) drop-shadow(0 5px 10px #000);border-top-width:24px}
+.roulette-center{z-index:4;box-shadow:0 0 24px #ff754533,0 8px 22px #0008}
 .prize-card,.history-card,.roulette-featured-card{background:linear-gradient(145deg,#191923,#101117);border-bottom-color:var(--quality)}
 .prize-card strong,.prize-card small,.history-card strong,.history-card small,.history-actions,.roulette-featured-card strong,.roulette-featured-card small{position:relative;z-index:1}
 .roulette-live{margin:25px 0 18px}.roulette-live-track{display:flex;gap:10px;overflow:hidden;padding:4px 0 10px}.roulette-live-card{min-width:190px;display:flex;align-items:center;gap:10px;padding:8px 12px;border:1px solid #ffffff16;border-bottom:2px solid var(--quality);background:linear-gradient(145deg,#1a1a24,#101117)}.roulette-live-card img{width:58px;height:50px;object-fit:contain}.roulette-live-card div{display:grid;gap:4px;min-width:0}.roulette-live-card strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.62rem}.roulette-live-card small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#89848a;font-size:.56rem}
