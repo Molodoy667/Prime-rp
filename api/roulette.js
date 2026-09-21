@@ -8,6 +8,7 @@ const qualities = {
   red: { label: 'Легендарне', weight: 6 },
   yellow: { label: 'Міфічне', weight: 2 },
 };
+const sellPriceByQuality = { white: 50, blue: 100, purple: 200, red: 500, yellow: 1000 };
 
 const defaultPrizes = [
   ['white', 'Гроші · 100 000', 'money', '100000', '/assets/accessories/300x140/armor_body_cash.png', 1],
@@ -190,6 +191,7 @@ async function ensureSchema(db) {
       await db.query('INSERT INTO site_roulette_prizes (quality,title,reward_type,reward_value,image_url,weight,sort_order) SELECT ?,?,?,?,?,?,? FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM site_roulette_prizes WHERE title=? LIMIT 1)', [quality, title, rewardType, rewardValue, imageUrl, qualities[quality].weight, sortOrder, title]);
     }
     await db.query("UPDATE site_roulette_prizes SET is_active=0 WHERE reward_type IN ('money','experience','premium','item','donate')");
+    await db.query("UPDATE site_roulette_wins SET sell_price=CASE quality WHEN 'white' THEN 50 WHEN 'blue' THEN 100 WHEN 'purple' THEN 200 WHEN 'red' THEN 500 WHEN 'yellow' THEN 1000 ELSE sell_price END WHERE status='pending'");
     const imageCorrections = [
       ['Скін · Пекельна леді', 'skin', '156', '/assets/skins/130x160/156.png'],
       ['Скін · Грабіжник', 'skin', '91', '/assets/skins/130x160/91.png'],
@@ -308,7 +310,7 @@ export default async function handler(request, response) {
         for (let index = 0; index < spinCount; index += 1) {
           const prize = draw(prizeRows);
           await connection.query('INSERT INTO site_roulette_history (player_id,prize_id,quality,title,image_url) VALUES (?,?,?,?,?)', [playerId, prize.id, prize.quality, prize.title, prize.image_url]);
-          const sellPrice = Math.max(0, Math.round(Number(prize.reward_value) * 0.35)) || (prize.quality === 'yellow' ? 500000 : prize.quality === 'red' ? 150000 : prize.quality === 'purple' ? 50000 : prize.quality === 'blue' ? 15000 : 5000);
+      const sellPrice = sellPriceByQuality[prize.quality] || 50;
           const [winResult] = await connection.query('INSERT INTO site_roulette_wins (player_id,prize_id,quality,title,reward_type,reward_value,image_url,sell_price) VALUES (?,?,?,?,?,?,?,?)', [playerId, prize.id, prize.quality, prize.title, prize.reward_type, prize.reward_value, prize.image_url, sellPrice]);
           results.push({ prize: normalizePrize(prize), winId: Number(winResult.insertId), sellPrice });
         }
@@ -328,7 +330,8 @@ export default async function handler(request, response) {
       if (input.action === 'sell') {
         const [settled] = await db.query("UPDATE site_roulette_wins SET status='sold',claimed_at=CURRENT_TIMESTAMP WHERE id=? AND player_id=? AND status='pending'", [winId, playerId]);
         if (!settled.affectedRows) return json(response, 409, { error: 'Виграш вже оброблено або не знайдено' });
-        await db.query('UPDATE ugta_players SET donate=donate+? WHERE id=?', [win.sell_price, playerId]);
+        const [credited] = await db.query('UPDATE ugta_players SET donate=COALESCE(donate,0)+? WHERE id=?', [win.sell_price, playerId]);
+        if (!credited.affectedRows) return json(response, 503, { error: 'Не вдалося зарахувати донат за продаж призу' });
         return json(response, 200, { ok: true, action: 'sold', amount: Number(win.sell_price) });
       }
       if (win.reward_type === 'money') await db.query('UPDATE ugta_players SET money=money+? WHERE id=?', [Math.max(0, Number(win.reward_value) || 0), playerId]);
