@@ -235,6 +235,61 @@ async function getRouletteConfig(db) {
 
 function identifier(name) { return `\`${String(name).replace(/`/g, '')}\``; }
 
+async function deliverGamePrize(db, playerId, win) {
+  const rewardValue = String(win.reward_value || '').trim();
+  if (win.reward_type === 'money') {
+    await db.query('UPDATE ugta_players SET money=money+? WHERE id=?', [Math.max(0, Number(rewardValue) || 0), playerId]);
+    return { gameTables: ['ugta_players'] };
+  }
+  if (win.reward_type === 'premium') {
+    await db.query('UPDATE ugta_players SET premium_time_left=COALESCE(premium_time_left,0)+? WHERE id=?', [Math.max(0, Number(rewardValue) || 0), playerId]);
+    return { gameTables: ['ugta_players'] };
+  }
+  if (win.reward_type === 'experience') {
+    await db.query('UPDATE ugta_players SET exp=exp+? WHERE id=?', [Math.max(0, Number(rewardValue) || 0), playerId]);
+    return { gameTables: ['ugta_players'] };
+  }
+  if (win.reward_type === 'vehicle') {
+    const model = Number(rewardValue);
+    if (!Number.isInteger(model) || model < 1) throw new Error('У призу вказано неправильний ID моделі автомобіля');
+    await db.query(`INSERT INTO ugta_vehicles
+      (owner_pid,model,health,x,y,z,interior,dimension,fuel,mileage,mileage_since_lp,mileage_total,variant,locked,creation_date)
+      VALUES (?,?,1000,0,0,0,0,0,100,0,0,0,1,'off',?)`, [`p:${playerId}`, model, Math.floor(Date.now() / 1000)]);
+    return { gameTables: ['ugta_vehicles'] };
+  }
+  if (win.reward_type === 'skin') {
+    const model = Number(rewardValue);
+    if (!Number.isInteger(model) || model < 1) throw new Error('У призу вказано неправильний ID скіна');
+    const [[player]] = await db.query('SELECT skin,skins FROM ugta_players WHERE id=? LIMIT 1', [playerId]);
+    if (!player) throw new Error('Гравця не знайдено');
+    let skins = typeof player.skins === 'string' ? JSON.parse(player.skins) : player.skins;
+    if (Array.isArray(skins)) {
+      if (!skins.length || !skins[0] || typeof skins[0] !== 'object') skins = [{}];
+      skins[0].s1 = model;
+    } else {
+      skins = { ...(skins && typeof skins === 'object' ? skins : {}), s1: model };
+    }
+    await db.query('UPDATE ugta_players SET skin=?,skins=? WHERE id=?', [model, JSON.stringify(skins), playerId]);
+    return { gameTables: ['ugta_players'] };
+  }
+  if (win.reward_type === 'accessory') {
+    const accessoryKey = rewardValue.split('/').pop().replace(/\.[^.]+$/, '');
+    if (!accessoryKey || !/^[a-zA-Z0-9_:-]+$/.test(accessoryKey)) throw new Error('У призу вказано неправильний ключ аксесуара');
+    const [[player]] = await db.query('SELECT own_accessories FROM ugta_players WHERE id=? LIMIT 1', [playerId]);
+    if (!player) throw new Error('Гравця не знайдено');
+    let accessories = typeof player.own_accessories === 'string' ? JSON.parse(player.own_accessories || '[]') : player.own_accessories;
+    if (Array.isArray(accessories)) {
+      if (!accessories.length || !accessories[0] || typeof accessories[0] !== 'object') accessories = [{}];
+      accessories[0][accessoryKey] = true;
+    } else {
+      accessories = { ...(accessories && typeof accessories === 'object' ? accessories : {}), [accessoryKey]: true };
+    }
+    await db.query('UPDATE ugta_players SET own_accessories=? WHERE id=?', [JSON.stringify(accessories), playerId]);
+    return { gameTables: ['ugta_players'] };
+  }
+  return null;
+}
+
 async function getPlayerRouletteWallet(db, playerId, config) {
   const freeColumn = config.freeSpinColumn ? `,${identifier(config.freeSpinColumn)}` : '';
   const [[player]] = await db.query(`SELECT donate${freeColumn} FROM ugta_players WHERE id=? LIMIT 1`, [playerId]);
@@ -325,21 +380,36 @@ export default async function handler(request, response) {
       if (!playerId) return json(response, 401, { error: 'Потрібна авторизація' });
       const winId = Number(input.winId);
       if (!Number.isInteger(winId) || winId < 1) return json(response, 400, { error: 'Невірний виграш' });
-      const [[win]] = await db.query("SELECT * FROM site_roulette_wins WHERE id=? AND player_id=? AND status='pending' LIMIT 1", [winId, playerId]);
-      if (!win) return json(response, 409, { error: 'Виграш вже оброблено або не знайдено' });
-      if (input.action === 'sell') {
-        const [settled] = await db.query("UPDATE site_roulette_wins SET status='sold',claimed_at=CURRENT_TIMESTAMP WHERE id=? AND player_id=? AND status='pending'", [winId, playerId]);
-        if (!settled.affectedRows) return json(response, 409, { error: 'Виграш вже оброблено або не знайдено' });
-        const [credited] = await db.query('UPDATE ugta_players SET donate=COALESCE(donate,0)+? WHERE id=?', [win.sell_price, playerId]);
-        if (!credited.affectedRows) return json(response, 503, { error: 'Не вдалося зарахувати донат за продаж призу' });
-        return json(response, 200, { ok: true, action: 'sold', amount: Number(win.sell_price) });
+      const connection = await db.getConnection();
+      let committed = false;
+      try {
+        await connection.beginTransaction();
+        const [[win]] = await connection.query("SELECT * FROM site_roulette_wins WHERE id=? AND player_id=? AND status='pending' FOR UPDATE", [winId, playerId]);
+        if (!win) return json(response, 409, { error: 'Виграш вже оброблено або не знайдено' });
+        if (input.action === 'sell') {
+          const [credited] = await connection.query('UPDATE ugta_players SET donate=COALESCE(donate,0)+? WHERE id=?', [win.sell_price, playerId]);
+          if (!credited.affectedRows) return json(response, 503, { error: 'Не вдалося зарахувати донат за продаж призу' });
+          await connection.query("UPDATE site_roulette_wins SET status='sold',claimed_at=CURRENT_TIMESTAMP WHERE id=?", [winId]);
+          await connection.commit();
+          committed = true;
+          return json(response, 200, { ok: true, action: 'sold', amount: Number(win.sell_price) });
+        }
+        const delivery = await deliverGamePrize(connection, playerId, win);
+        if (!delivery) {
+          return json(response, 409, {
+            error: 'Видача цього типу призу ще не налаштована: у базі немає таблиці інвентарю гравця.',
+            rewardType: win.reward_type,
+            winId
+          });
+        }
+        await connection.query("UPDATE site_roulette_wins SET status='claimed',claimed_at=CURRENT_TIMESTAMP WHERE id=?", [winId]);
+        await connection.commit();
+        committed = true;
+        return json(response, 200, { ok: true, action: 'claimed', directGameCredit: true, gameTables: delivery.gameTables });
+      } finally {
+        if (!committed) await connection.rollback();
+        connection.release();
       }
-      if (win.reward_type === 'money') await db.query('UPDATE ugta_players SET money=money+? WHERE id=?', [Math.max(0, Number(win.reward_value) || 0), playerId]);
-      else if (win.reward_type === 'premium') await db.query('UPDATE ugta_players SET premium_time_left=premium_time_left+? WHERE id=?', [Math.max(0, Number(win.reward_value) || 0), playerId]);
-      else if (win.reward_type === 'experience') await db.query('UPDATE ugta_players SET exp=exp+? WHERE id=?', [Math.max(0, Number(win.reward_value) || 0), playerId]);
-      const [settled] = await db.query("UPDATE site_roulette_wins SET status='claimed',claimed_at=CURRENT_TIMESTAMP WHERE id=? AND player_id=? AND status='pending'", [winId, playerId]);
-      if (!settled.affectedRows) return json(response, 409, { error: 'Виграш вже оброблено або не знайдено' });
-      return json(response, 200, { ok: true, action: 'claimed', directGameCredit: ['money','premium','experience'].includes(win.reward_type), gameTables: ['money','premium','experience'].includes(win.reward_type) ? ['ugta_players'] : [] });
     }
     if (!(await requireAdmin(db, safePlayerId(input.actorId)))) return json(response, 403, { error: 'Недостатньо прав' });
     if (input.action === 'delete') { await db.query('DELETE FROM site_roulette_prizes WHERE id=?', [Number(input.id)]); return json(response, 200, { ok: true }); }
