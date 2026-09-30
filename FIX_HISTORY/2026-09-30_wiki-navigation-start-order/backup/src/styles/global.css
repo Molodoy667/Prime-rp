@@ -62,7 +62,3 @@
 .admin-social-settings{display:grid;gap:10px;padding:14px;border:1px solid #ffffff12;background:#111820}.admin-social-settings .admin-list-heading{margin:0}.admin-social-settings .admin-list-heading h4{margin:0}.admin-social-row{display:grid;grid-template-columns:.7fr 1.3fr auto;gap:8px}.admin-social-row input{width:100%;border:1px solid #ffffff18;background:#080d12;color:#e7e2d7;padding:10px 11px;font-size:.84rem;outline:0}.admin-social-row .button{min-height:38px;padding:0 10px}
 .account-nav{display:flex;align-items:center;gap:22px;margin-left:auto;margin-right:28px}.account-nav a{color:#9299a2;font-size:.68rem;letter-spacing:.1em}.account-nav a:hover{color:#e2bf79}
 @media(max-width:800px){.account-nav{gap:10px;margin-right:12px}.account-nav a{font-size:.58rem}.account-header .brand>span{display:none}}
-
-/* Wiki skin PNGs contain a source watermark; keep the card frame consistent on all viewports. */
-.wiki-skin-card .wiki-card-image::after{content:"";position:absolute;z-index:1;right:0;bottom:0;left:0;height:38%;background:linear-gradient(180deg,transparent 0%,#0a0e13 22%,#0a0e13 100%);pointer-events:none}
-.wiki-skin-card .wiki-card-image span{z-index:2}
