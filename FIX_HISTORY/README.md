@@ -52,3 +52,19 @@
 - `src/components/Forum/index.tsx`
 - `src/styles/global.css`
 
+## 2026-09-30 — launcher-resources-toggle
+
+Путь: `FIX_HISTORY/2026-09-30_launcher-resources-toggle/`
+
+Статус: `TESTING`
+
+Кратко: добавлено окреме керування оновленням ресурсів лаунчера через `resources_enabled`, а API `/api/launcher` тепер повертає `launcher.resourcesEnabled`, `launcher.resourcesUrl` і `launcher.resourcesVersion`.
+
+Изменено:
+
+- `api/launcher.js`
+- `api/site-meta.js`
+- `src/components/Account/AdminPanel.tsx`
+- `database/site-content.sql`
+- `database/launcher-resources.sql`
+

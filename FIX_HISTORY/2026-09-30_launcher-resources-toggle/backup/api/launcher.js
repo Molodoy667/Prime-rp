@@ -6,13 +6,7 @@ const fallbackLauncher = {
   resourcesUrl: '',
   version: '1.0.0',
   resourcesVersion: '1',
-  resourcesEnabled: false,
   maintenance: false,
-};
-
-const readBooleanSetting = (value, fallback = false) => {
-  if (value === undefined || value === null || value === '') return fallback;
-  return ['1', 'true', 'yes', 'on'].includes(String(value).toLowerCase());
 };
 
 const fallbackNews = [
@@ -64,8 +58,7 @@ const readDatabaseData = async () => {
       resourcesUrl: settings.resources_url || fallbackLauncher.resourcesUrl,
       version: settings.version || fallbackLauncher.version,
       resourcesVersion: settings.resources_version || fallbackLauncher.resourcesVersion,
-      resourcesEnabled: readBooleanSetting(settings.resources_enabled, fallbackLauncher.resourcesEnabled),
-      maintenance: readBooleanSetting(settings.maintenance, fallbackLauncher.maintenance),
+      maintenance: settings.maintenance === '1',
     };
     result.news = newsRows.map(row => ({
       ...row,
@@ -102,7 +95,6 @@ export default async function handler(request, response) {
       // These aliases keep older launcher builds compatible with the current API contract.
       downloadUrl: database.launcher.downloadUrl,
       resourcesUrl: database.launcher.resourcesUrl,
-      resourcesEnabled: database.launcher.resourcesEnabled,
       version: database.launcher.version,
       resourcesVersion: database.launcher.resourcesVersion,
       databaseAvailable: database.available,
