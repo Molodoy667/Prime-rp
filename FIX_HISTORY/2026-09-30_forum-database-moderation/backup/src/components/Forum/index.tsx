@@ -31,6 +31,9 @@ import {
   X,
 } from "lucide-react";
 import {
+  forumCategories as seedCategories,
+  forumReplies as seedReplies,
+  forumTopics as seedTopics,
   loadForumUser,
   roleLabel,
   saveForumUser,
@@ -67,9 +70,13 @@ function Avatar({ name, role }: { name: string; role: ForumRole }) {
     </span>
   );
 }
-function UserTag({ label, color }: { label?: string; color?: string }) {
-  if (!label) return null;
-  return <span className="forum-user-tag" style={{ backgroundColor: color || "#d6a84b" }}>{label}</span>;
+function read<T>(key: string, fallback: T): T {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? (JSON.parse(raw) as T) : fallback;
+  } catch {
+    return fallback;
+  }
 }
 
 export default function Forum() {
@@ -80,11 +87,15 @@ export default function Forum() {
   const [query, setQuery] = useState("");
   const [loginError, setLoginError] = useState("");
   const [mobileNav, setMobileNav] = useState(false);
-  const [categories, setCategories] = useState<ForumCategory[]>([]);
-  const [topics, setTopics] = useState<ForumTopic[]>([]);
-  const [replies, setReplies] = useState<ForumReply[]>([]);
-  const [members, setMembers] = useState<ForumUser[]>([]);
-  const [forumError, setForumError] = useState("");
+  const [categories, setCategories] = useState<ForumCategory[]>(() =>
+    read("prime-forum-categories", seedCategories),
+  );
+  const [topics, setTopics] = useState<ForumTopic[]>(() =>
+    read("prime-forum-topics", seedTopics),
+  );
+  const [replies, setReplies] = useState<ForumReply[]>(() =>
+    read("prime-forum-replies", seedReplies),
+  );
   const [stats, setStats] = useState({ members: 0, topics: 0, online: 0 });
   const [modal, setModal] = useState<
     "topic" | "category" | "edit-topic" | "edit-reply" | null
@@ -98,21 +109,27 @@ export default function Forum() {
   const [replyBody, setReplyBody] = useState("");
   const [profile, setProfile] = useState<ForumUser | null>(user);
   const [accountTab, setAccountTab] = useState<"profile" | "manage">("profile");
-  const loadForumData = async () => {
-    const query = user?.role === "admin" ? `?admin=1&userId=${encodeURIComponent(user.id)}` : "";
-    const response = await fetch(`/api/forum${query}`, { cache: "no-store" });
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.error || "Не вдалося завантажити форум");
-    setCategories(data.categories ?? []); setTopics(data.topics ?? []); setReplies(data.replies ?? []);
-    setStats(data.stats ?? { members: 0, topics: 0, online: 0 }); setMembers(data.members ?? []); setForumError("");
-  };
-  const forumAction = async (payload: Record<string, unknown>) => {
-    const response = await fetch("/api/forum", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.error || "Операція не виконана");
-    await loadForumData();
-  };
-  useEffect(() => { loadForumData().catch((error) => setForumError(error instanceof Error ? error.message : "Форум тимчасово недоступний")); }, [user?.id, user?.role]);
+  useEffect(() => {
+    fetch("/api/forum")
+      .then((response) => (response.ok ? response.json() : null))
+      .then((data) => {
+        if (!data) return;
+        setCategories(data.categories);
+        setTopics(data.topics);
+        setReplies(data.replies);
+        setStats(data.stats);
+      })
+      .catch(() => undefined);
+  }, []);
+  useEffect(() => {
+    localStorage.setItem("prime-forum-categories", JSON.stringify(categories));
+  }, [categories]);
+  useEffect(() => {
+    localStorage.setItem("prime-forum-topics", JSON.stringify(topics));
+  }, [topics]);
+  useEffect(() => {
+    localStorage.setItem("prime-forum-replies", JSON.stringify(replies));
+  }, [replies]);
   const category = selectedCategory
     ? categories.find((item) => item.id === selectedCategory)
     : null;
@@ -168,12 +185,27 @@ export default function Forum() {
   };
   const createTopic = async () => {
     if (!user || !newTitle.trim() || !newBody.trim()) return;
-    await forumAction({ action: "create-topic", userId: user.id, categoryId: selectedCategory || categories[0]?.id, title: newTitle, body: newBody });
+    await fetch("/api/forum", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "create-topic",
+        userId: user.id,
+        categoryId: selectedCategory || categories[0]?.id,
+        title: newTitle,
+        body: newBody,
+      }),
+    });
+    const response = await fetch("/api/forum");
+    const data = await response.json();
+    setCategories(data.categories);
+    setTopics(data.topics);
+    setReplies(data.replies);
     setNewTitle("");
     setNewBody("");
     setModal(null);
   };
-  const updateTopic = async () => {
+  const updateTopic = () => {
     if (
       !selectedTopic ||
       !newTitle.trim() ||
@@ -182,28 +214,48 @@ export default function Forum() {
       !(selectedTopic.author === user.username || canAdmin(user))
     )
       return;
-    await forumAction({ action: "update-topic", userId: user.id, topicId: selectedTopic.id, title: newTitle.trim(), body: newBody.trim() });
-    const updated = { ...selectedTopic, title: newTitle.trim(), excerpt: newBody.trim(), edited: true };
+    const updated = {
+      ...selectedTopic,
+      title: newTitle.trim(),
+      excerpt: newBody.trim(),
+      edited: true,
+    };
+    setTopics(topics.map((item) => (item.id === updated.id ? updated : item)));
     setSelectedTopic(updated);
     setModal(null);
   };
-  const removeTopic = async (topic: ForumTopic) => {
+  const removeTopic = (topic: ForumTopic) => {
     if (
       !user ||
       !(topic.author === user.username || canAdmin(user)) ||
       !window.confirm("Видалити тему та всі відповіді?")
     )
       return;
-    await forumAction({ action: "delete-topic", userId: user.id, topicId: topic.id });
+    setTopics(topics.filter((item) => item.id !== topic.id));
+    setReplies(replies.filter((item) => item.topicId !== topic.id));
     setSelectedTopic(null);
   };
   const addReply = async () => {
     if (!user || !selectedTopic || !replyBody.trim() || selectedTopic.locked)
       return;
-    await forumAction({ action: "create-reply", userId: user.id, topicId: selectedTopic.id, body: replyBody });
+    await fetch("/api/forum", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "create-reply",
+        userId: user.id,
+        topicId: selectedTopic.id,
+        body: replyBody,
+      }),
+    });
+    const response = await fetch("/api/forum");
+    const data = await response.json();
+    setCategories(data.categories);
+    setTopics(data.topics);
+    setReplies(data.replies);
     setReplyBody("");
   };
-  const updateReply = async () => {
+  const updateReply = () => {
     if (
       !user ||
       !editingReply ||
@@ -211,32 +263,67 @@ export default function Forum() {
       !(editingReply.author === user.username || canAdmin(user))
     )
       return;
-    await forumAction({ action: "update-reply", userId: user.id, replyId: editingReply.id, body: replyBody.trim() });
+    setReplies(
+      replies.map((item) =>
+        item.id === editingReply.id
+          ? { ...item, body: replyBody.trim(), edited: true }
+          : item,
+      ),
+    );
     setModal(null);
     setEditingReply(null);
     setReplyBody("");
   };
-  const removeReply = async (reply: ForumReply) => {
+  const removeReply = (reply: ForumReply) => {
     if (
       !user ||
       !(reply.author === user.username || canAdmin(user)) ||
       !window.confirm("Видалити відповідь?")
     )
       return;
-    await forumAction({ action: "delete-reply", userId: user.id, replyId: reply.id });
+    setReplies(replies.filter((item) => item.id !== reply.id));
+    setTopics(
+      topics.map((item) =>
+        item.id === reply.topicId
+          ? { ...item, replies: Math.max(0, item.replies - 1) }
+          : item,
+      ),
+    );
   };
-  const moderate = async (action: "lock" | "pin") => {
+  const moderate = (action: "lock" | "pin") => {
     if (!selectedTopic || !canModerate(user)) return;
-    const field = action === "lock" ? "locked" : "pinned";
-    await forumAction({ action: "moderate-topic", userId: user?.id, topicId: selectedTopic.id, field });
-    setSelectedTopic({ ...selectedTopic, [field]: !selectedTopic[field] });
+    const key = action === "lock" ? "locked" : "pinned";
+    const updated = { ...selectedTopic, [key]: !selectedTopic[key] };
+    setTopics(topics.map((item) => (item.id === updated.id ? updated : item)));
+    setSelectedTopic(updated);
   };
-  const createCategory = async () => {
-    if (!user || !canAdmin(user) || !newTitle.trim()) return;
+  const createCategory = () => {
+    if (!canAdmin(user) || !newTitle.trim()) return;
     if (editingCategory) {
-      await forumAction({ action: "update-category", userId: user.id, categoryId: editingCategory, title: newTitle.trim(), description: newDescription.trim(), parentId: newParent || null });
+      setCategories(
+        categories.map((item) =>
+          item.id === editingCategory
+            ? {
+                ...item,
+                title: newTitle.trim(),
+                description: newDescription.trim() || item.description,
+                parentId: newParent || undefined,
+              }
+            : item,
+        ),
+      );
     } else {
-      await forumAction({ action: "create-category", userId: user.id, title: newTitle.trim(), description: newDescription.trim(), parentId: newParent || null });
+      const item: ForumCategory = {
+        id: `category-${Date.now()}`,
+        title: newTitle.trim(),
+        description: newDescription.trim() || "Новий розділ спільноти PRIME RP",
+        icon: "messages",
+        color: "#d6a84b",
+        topics: 0,
+        posts: 0,
+        parentId: newParent || undefined,
+      };
+      setCategories([...categories, item]);
     }
     setEditingCategory(null);
     setNewTitle("");
@@ -251,21 +338,23 @@ export default function Forum() {
     setNewParent(item.parentId ?? "");
     setModal("category");
   };
-  const deleteCategory = async (item: ForumCategory) => {
-    if (!user || !canAdmin(user) || !window.confirm(`Видалити розділ «${item.title}»?`))
+  const deleteCategory = (item: ForumCategory) => {
+    if (!canAdmin(user) || !window.confirm(`Видалити розділ «${item.title}»?`))
       return;
-    await forumAction({ action: "delete-category", userId: user.id, categoryId: item.id });
-    if (selectedCategory === item.id) setSelectedCategory(null);
+    const ids = new Set([
+      item.id,
+      ...categories
+        .filter((child) => child.parentId === item.id)
+        .map((child) => child.id),
+    ]);
+    setCategories(
+      categories.filter((categoryItem) => !ids.has(categoryItem.id)),
+    );
+    setTopics(topics.filter((topic) => !ids.has(topic.categoryId)));
+    if (selectedCategory && ids.has(selectedCategory))
+      setSelectedCategory(null);
   };
-  const moveTopic = async (topicId: string, categoryId: string) => {
-    if (!user || !canAdmin(user)) return;
-    await forumAction({ action: "move-topic", userId: user.id, topicId, categoryId });
-  };
-  const updateUserTag = async (targetUserId: string, tagLabel: string, tagColor: string) => {
-    if (!user || !canAdmin(user)) return;
-    await forumAction({ action: "update-user-tag", userId: user.id, targetUserId, tagLabel, tagColor });
-  };
-  const saveProfile = async () => {
+  const saveProfile = () => {
     if (!user || !profile) return;
     const next = {
       ...user,
@@ -276,7 +365,6 @@ export default function Forum() {
       discord: profile.discord?.trim(),
       phone: profile.phone?.trim(),
     };
-    await forumAction({ action: "update-profile", userId: user.id, username: next.username, email: next.email, bio: next.bio, city: next.city, discord: next.discord, phone: next.phone });
     saveForumUser(next);
     setUser(next);
     setProfile(next);
@@ -331,7 +419,6 @@ export default function Forum() {
         </div>
       </header>
       <main className="forum-main">
-        {forumError && <div className="forum-form-error">{forumError}</div>}
         {view === "login" && (
           <AuthCard
             mode="login"
@@ -391,8 +478,6 @@ export default function Forum() {
             tab={accountTab}
             setTab={setAccountTab}
             categories={categories}
-            topics={topics}
-            members={members}
             onSave={saveProfile}
             onBack={goHome}
             onLogout={logout}
@@ -404,8 +489,6 @@ export default function Forum() {
             }}
             onEditCategory={editCategory}
             onDeleteCategory={deleteCategory}
-            onMoveTopic={moveTopic}
-            onUpdateUserTag={updateUserTag}
           />
         )}{" "}
         {view === "home" && (
@@ -702,9 +785,9 @@ function TopicRow({
         <small>переглядів</small>
       </div>
       <div className="forum-topic-last">
-        <Avatar name={topic.lastAuthor} role={topic.lastAuthorRole ?? topic.authorRole} />
+        <Avatar name={topic.lastAuthor} role={topic.authorRole} />
         <span>
-          <strong>{topic.lastAuthor} <UserTag label={topic.lastAuthorTagLabel} color={topic.lastAuthorTagColor} /></strong>
+          <strong>{topic.lastAuthor}</strong>
           <small>{topic.lastAt}</small>
         </span>
       </div>
@@ -796,19 +879,22 @@ function TopicView({
       <div className="forum-post forum-post-opening">
         <div className="forum-post-author">
           <Avatar name={topic.author} role={topic.authorRole} />
-          <strong>{topic.author} <UserTag label={topic.authorTagLabel} color={topic.authorTagColor} /></strong>
+          <strong>{topic.author}</strong>
           <RoleBadge role={topic.authorRole} />
         </div>
         <div className="forum-post-body">
           <p>{topic.excerpt}</p>
-          <small>Контент теми зберігається в базі даних PRIME RP.</small>
+          <small>
+            Демонстраційна mock-тема PRIME RP. Після підключення бази контент
+            зберігатиметься на сервері.
+          </small>
         </div>
       </div>
       {replies.map((reply) => (
         <div className="forum-post" key={reply.id}>
           <div className="forum-post-author">
             <Avatar name={reply.author} role={reply.role} />
-            <strong>{reply.author} <UserTag label={reply.authorTagLabel} color={reply.authorTagColor} /></strong>
+            <strong>{reply.author}</strong>
             <RoleBadge role={reply.role} />
             <span>{reply.createdAt}</span>
           </div>
@@ -984,16 +1070,12 @@ function Account({
   tab,
   setTab,
   categories,
-  topics,
-  members,
   onSave,
   onBack,
   onLogout,
   onCreateCategory,
   onEditCategory,
   onDeleteCategory,
-  onMoveTopic,
-  onUpdateUserTag,
 }: {
   user: ForumUser;
   profile: ForumUser;
@@ -1001,16 +1083,12 @@ function Account({
   tab: "profile" | "manage";
   setTab: (value: "profile" | "manage") => void;
   categories: ForumCategory[];
-  topics: ForumTopic[];
-  members: ForumUser[];
-  onSave: () => void | Promise<void>;
+  onSave: () => void;
   onBack: () => void;
   onLogout: () => void;
   onCreateCategory: () => void;
   onEditCategory: (item: ForumCategory) => void;
   onDeleteCategory: (item: ForumCategory) => void;
-  onMoveTopic: (topicId: string, categoryId: string) => void | Promise<void>;
-  onUpdateUserTag: (userId: string, tagLabel: string, tagColor: string) => void | Promise<void>;
 }) {
   return (
     <section className="forum-account-page">
@@ -1059,7 +1137,7 @@ function Account({
               <span /> PROFILE SETTINGS
             </span>
             <h2>ВАШ ПРОФІЛЬ</h2>
-            <p>Профіль, теми, відповіді та налаштування зберігаються в базі даних PRIME RP.</p>
+            <p>Дані зберігаються локально до підключення акаунтів PRIME RP.</p>
           </div>
           <div className="forum-profile-form">
             <label>
@@ -1121,7 +1199,7 @@ function Account({
               </span>
               <h2>СТРУКТУРА ФОРУМУ</h2>
               <p>
-                Розділи, теми та користувацькі теги зберігаються в базі даних.
+                Створюйте розділи та підрозділи. Mock-дані готові до заміни API.
               </p>
             </div>
             <button className="forum-create-btn" onClick={onCreateCategory}>
@@ -1151,39 +1229,9 @@ function Account({
               </div>
             ))}
           </div>
-          <div className="forum-admin-subsection">
-            <h3>ПЕРЕНЕСЕННЯ ТЕМ</h3>
-            {topics.length ? topics.map((topic) => (
-              <div className="forum-admin-topic-row" key={topic.id}>
-                <span>{topic.title}</span>
-                <select value={topic.categoryId} onChange={(event) => onMoveTopic(topic.id, event.target.value)}>
-                  {categories.map((item) => <option value={item.id} key={item.id}>{item.title}</option>)}
-                </select>
-              </div>
-            )) : <p>У базі ще немає тем.</p>}
-          </div>
-          <div className="forum-admin-subsection">
-            <h3>ТЕГИ КОРИСТУВАЧІВ</h3>
-            {members.length ? members.map((member) => (
-              <TagEditor key={member.id} member={member} onSave={onUpdateUserTag} />
-            )) : <p>Користувачі з’являться після реєстрації.</p>}
-          </div>
         </div>
       )}
     </section>
-  );
-}
-
-function TagEditor({ member, onSave }: { member: ForumUser; onSave: (id: string, label: string, color: string) => void | Promise<void> }) {
-  const [label, setLabel] = useState(member.tagLabel ?? "");
-  const [color, setColor] = useState(member.tagColor ?? "#d6a84b");
-  return (
-    <div className="forum-admin-tag-row">
-      <strong>{member.username}</strong>
-      <input value={label} onChange={(event) => setLabel(event.target.value)} placeholder="Наприклад, VIP" maxLength={40} />
-      <input type="color" value={color} onChange={(event) => setColor(event.target.value)} aria-label={`Колір тегу ${member.username}`} />
-      <button className="forum-create-btn" onClick={() => onSave(member.id, label, color)}>ЗБЕРЕГТИ</button>
-    </div>
   );
 }
 

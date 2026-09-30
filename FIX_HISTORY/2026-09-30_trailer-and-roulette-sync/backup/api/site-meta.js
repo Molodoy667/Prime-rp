@@ -7,7 +7,6 @@ const defaultSeo = [
 ];
 const defaultSettings = [
   { section: 'general', settingKey: 'contact_discord', settingValue: '#', valueType: 'url' },
-  { section: 'general', settingKey: 'trailer_url', settingValue: '#', valueType: 'url' },
   { section: 'general', settingKey: 'social_links', settingValue: '[]', valueType: 'json' },
   { section: 'roulette', settingKey: 'spin_price', settingValue: '89', valueType: 'number' },
 ];

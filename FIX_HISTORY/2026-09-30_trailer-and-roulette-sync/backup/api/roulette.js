@@ -328,7 +328,7 @@ export default async function handler(request, response) {
       const playerId = safePlayerId(request.query?.playerId || actorId);
       if (!admin && !playerId) return json(response, 401, { error: 'Потрібна авторизація' });
       const [prizeRows] = await db.query(admin ? 'SELECT * FROM site_roulette_prizes ORDER BY quality, sort_order, id' : 'SELECT * FROM site_roulette_prizes WHERE is_active=1 ORDER BY quality, sort_order, id');
-      if (admin) { const config = await getRouletteConfig(db); return json(response, 200, { prizes: prizeRows.map(normalizePrize), qualities, spinPrice: config.spinPrice }); }
+      if (admin) return json(response, 200, { prizes: prizeRows.map(normalizePrize), qualities });
       const config = await getRouletteConfig(db);
       const wallet = await getPlayerRouletteWallet(db, playerId, config);
       const [historyRows] = await db.query('SELECT id,quality,title,image_url imageUrl,created_at createdAt FROM site_roulette_history WHERE player_id=? ORDER BY id DESC LIMIT 30', [playerId]);

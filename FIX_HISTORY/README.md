@@ -16,3 +16,39 @@
 - `src/components/Footer/index.tsx`
 - `src/styles/global.css`
 
+## 2026-09-30 — trailer-and-roulette-sync
+
+Путь: `FIX_HISTORY/2026-09-30_trailer-and-roulette-sync/`
+
+Статус: `TESTING`
+
+Кратко: добавлена ссылка на трейлер в настройках сайта, подключён её вывод на главной, а админская рулетка синхронизирована с теми же источниками призов и цены, которые использует пользовательская рулетка.
+
+Изменено:
+
+- `api/site-meta.js`
+- `api/roulette.js`
+- `src/App.tsx`
+- `src/components/Account/AdminPanel.tsx`
+- `src/components/Account/RouletteAdmin.tsx`
+- `src/components/Hero/index.tsx`
+- `src/components/ui/Overlay.tsx`
+- `src/styles/global.css`
+
+## 2026-09-30 — forum-database-moderation
+
+Путь: `FIX_HISTORY/2026-09-30_forum-database-moderation/`
+
+Статус: `TESTING`
+
+Кратко: форум переведён с demo/localStorage состояния на MySQL API; добавлены серверное сохранение контента, теги пользователей с цветом и админское перенесення тем между разделами.
+
+Изменено:
+
+- `api/forum-schema.js`
+- `api/forum.js`
+- `api/forum-auth.js`
+- `src/data/forum.ts`
+- `src/components/Forum/index.tsx`
+- `src/styles/global.css`
+
