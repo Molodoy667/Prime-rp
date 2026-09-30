@@ -121,7 +121,6 @@ INSERT IGNORE INTO `site_settings` (`section`,`setting_key`,`setting_value`,`val
 ('launcher','download_url','','url'),
 ('launcher','resources_enabled','0','boolean'),
 ('launcher','resources_url','','url'),
-('launcher','resources_api_url','','url'),
 ('launcher','version','1.0.0','text'),
 ('launcher','resources_version','1','text'),
 ('launcher','maintenance','0','boolean');

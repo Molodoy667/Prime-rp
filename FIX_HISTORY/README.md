@@ -68,3 +68,11 @@
 - `database/site-content.sql`
 - `database/launcher-resources.sql`
 
+
+## 2026-09-30 — launcher-resources-api-link
+
+Путь: `FIX_HISTORY/2026-09-30_launcher-resources-api-link/`
+Статус: TESTING
+
+Кратко: добавлена отдельная настройка `launcher.resources_api_url`, выдаваемая API как `launcher.resourcesApiUrl` и top-level `resourcesApiUrl`.
+

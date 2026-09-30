@@ -4,7 +4,6 @@ import { loadStatus } from '../worker/status.mjs';
 const fallbackLauncher = {
   downloadUrl: '',
   resourcesUrl: '',
-  resourcesApiUrl: '',
   version: '1.0.0',
   resourcesVersion: '1',
   resourcesEnabled: false,
@@ -63,7 +62,6 @@ const readDatabaseData = async () => {
     result.launcher = {
       downloadUrl: settings.download_url || fallbackLauncher.downloadUrl,
       resourcesUrl: settings.resources_url || fallbackLauncher.resourcesUrl,
-      resourcesApiUrl: settings.resources_api_url || fallbackLauncher.resourcesApiUrl,
       version: settings.version || fallbackLauncher.version,
       resourcesVersion: settings.resources_version || fallbackLauncher.resourcesVersion,
       resourcesEnabled: readBooleanSetting(settings.resources_enabled, fallbackLauncher.resourcesEnabled),
@@ -104,7 +102,6 @@ export default async function handler(request, response) {
       // These aliases keep older launcher builds compatible with the current API contract.
       downloadUrl: database.launcher.downloadUrl,
       resourcesUrl: database.launcher.resourcesUrl,
-      resourcesApiUrl: database.launcher.resourcesApiUrl,
       resourcesEnabled: database.launcher.resourcesEnabled,
       version: database.launcher.version,
       resourcesVersion: database.launcher.resourcesVersion,
