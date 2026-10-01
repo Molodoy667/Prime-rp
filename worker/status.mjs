@@ -10,7 +10,7 @@ export async function loadStatus(fetcher=fetch,now=Date.now()){
  try{
   // The deployed Workers runtime supports manual/follow only. Reject redirects
   // through the status check below, keeping this request on the fixed MTA origin.
-  const request=()=>fetcher(MASTER_URL,{headers:{Accept:'application/octet-stream','User-Agent':'PRIME-RP status monitor/1.0'}}).catch(()=>fetcher(MASTER_URL_BACKUP,{headers:{Accept:'application/octet-stream','User-Agent':'PRIME-RP status monitor/1.0'}}));
+  const request=()=>fetcher(MASTER_URL,{redirect:'manual',headers:{Accept:'application/octet-stream','User-Agent':'PRIME-RP status monitor/1.0'}}).catch(()=>fetcher(MASTER_URL_BACKUP,{redirect:'manual',headers:{Accept:'application/octet-stream','User-Agent':'PRIME-RP status monitor/1.0'}}));
   const response=await Promise.race([
    request(),
    new Promise((_,reject)=>setTimeout(()=>reject(new Error('MTA_MASTER_TIMEOUT')),10000))

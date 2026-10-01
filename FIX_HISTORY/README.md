@@ -76,3 +76,20 @@
 
 Кратко: добавлена отдельная настройка `launcher.resources_api_url`, выдаваемая API как `launcher.resourcesApiUrl` и top-level `resourcesApiUrl`.
 
+
+## 2026-10-01 — mta-status-redirect-policy
+
+Путь: `FIX_HISTORY/2026-10-01_mta-status-redirect-policy/`
+
+Статус: TESTING
+
+Кратко: исправлена явная политика HTTP-редиректов в проверке мастер-листа MTA; доступность игрового порта остаётся отдельной проблемой хостинга.
+
+## 2026-10-01 — launcher-installer-replacement
+
+Путь: `FIX_HISTORY/2026-10-01_launcher-installer-replacement/`
+
+Статус: TESTING
+
+Кратко: `public/PRIME RP Setup.exe` заменён указанной пользователем версией; SHA-256 совпадает с исходным файлом.
+
