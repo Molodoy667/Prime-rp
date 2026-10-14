@@ -1,0 +1,46 @@
+{
+  "1.7.6": {
+    "cdn": "https://dl.hasslecdn.com/game/1.7.3.6",
+    "StandaloneWindows": {
+      "version": "1.7.5",
+      "resourcesVersion": 201
+    },
+    "Android": {
+      "version": "1.7.5",
+      "resourcesVersion": 288
+    },
+    "iOS": {
+      "version": "1.7.5",
+      "resourcesVersion": 201
+    },
+    "servers": {
+      "T": {
+        "name": "K5NT3",
+        "ip": "51.75.44.14",
+        "port": 2219
+      }
+    }
+  },
+  "0.0.0": {
+    "cdn": "https://dl.hasslecdn.com/game/1.7.3.6",
+    "StandaloneWindows": {
+      "version": "1.7.2",
+      "resourcesVersion": 190
+    },
+    "Android": {
+      "version": "1.7.5",
+      "resourcesVersion": 288
+    },
+    "iOS": {
+      "version": "1.7.5",
+      "resourcesVersion": 209
+    },
+    "servers": {
+      "1": {
+        "name": "testerstudio",
+        "ip": "51.75.44.14",
+        "port": 2219
+      }
+    }
+  }
+}
