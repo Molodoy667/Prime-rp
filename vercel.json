@@ -2,6 +2,8 @@
   "buildCommand": "npm run build:vercel",
   "outputDirectory": "dist",
   "rewrites": [
+    { "source": "/projects/hassle/main/info.json", "destination": "/projects/hassle/info.json" },
+    { "source": "/online.json", "destination": "/projects/hassle/online.json" },
     { "source": "/project/info.json", "destination": "/projects/hassle/info.json" },
     { "source": "/project/online.json", "destination": "/projects/hassle/online.json" },
     { "source": "/(.*)", "destination": "/index.html" }
