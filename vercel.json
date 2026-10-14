@@ -1,6 +1,14 @@
 {
   "buildCommand": "npm run build:vercel",
   "outputDirectory": "dist",
+  "headers": [
+    {
+      "source": "/projects/hassle/main/background.png",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store, max-age=0, must-revalidate" }
+      ]
+    }
+  ],
   "rewrites": [
     { "source": "/projects/hassle/main/info.json", "destination": "/projects/hassle/info.json" },
     { "source": "/online.json", "destination": "/projects/hassle/online.json" },
