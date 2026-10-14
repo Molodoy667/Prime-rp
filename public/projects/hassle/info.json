@@ -1,6 +1,6 @@
 {
   "1.7.6": {
-    "cdn": "https://dl.hasslecdn.com/game/1.7.3.6",
+    "cdn": "https://dl.hasslecdn.com/game/1.8.9.4",
     "StandaloneWindows": {
       "version": "1.7.5",
       "resourcesVersion": 201
@@ -22,7 +22,7 @@
     }
   },
   "0.0.0": {
-    "cdn": "https://dl.hasslecdn.com/game/1.7.3.6",
+    "cdn": "https://dl.hasslecdn.com/game/1.8.9.4",
     "StandaloneWindows": {
       "version": "1.7.2",
       "resourcesVersion": 190
