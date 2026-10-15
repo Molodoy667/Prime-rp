@@ -1,0 +1,98 @@
+name: Mirror Hassle Android resources to R2
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Select a read-only preflight, full upload, or checksum audit
+        required: true
+        type: choice
+        options:
+          - preflight
+          - upload
+          - verify
+      bucket:
+        description: Destination R2 bucket name
+        required: true
+        type: string
+      prefix:
+        description: Object prefix below the bucket
+        required: true
+        default: game/1.8.9.4
+        type: string
+      confirm_upload:
+        description: For upload only, type MIRROR-ANDROID-288
+        required: false
+        type: string
+      overwrite_existing:
+        description: Overwrite existing objects if repairing a failed checksum audit
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+jobs:
+  mirror:
+    if: github.repository == 'Molodoy667/Prime-rp' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    environment: hassle-r2-mirror
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Require explicit upload phrase
+        if: inputs.mode == 'upload'
+        env:
+          CONFIRM_UPLOAD: ${{ inputs.confirm_upload }}
+        run: |
+          if [[ "$CONFIRM_UPLOAD" != "MIRROR-ANDROID-288" ]]; then
+            echo "For a full upload, set confirm_upload to MIRROR-ANDROID-288."
+            exit 1
+          fi
+
+      - name: Install rclone
+        if: inputs.mode != 'preflight'
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes rclone
+          rclone version
+
+      - name: Check source manifests and every object URL
+        if: inputs.mode == 'preflight'
+        run: python3 scripts/hassle_android_r2_mirror.py preflight
+
+      - name: Stream source objects to R2 and audit MD5
+        if: inputs.mode == 'upload'
+        env:
+          R2_BUCKET: ${{ inputs.bucket }}
+          R2_PREFIX: ${{ inputs.prefix }}
+          OVERWRITE_EXISTING: ${{ inputs.overwrite_existing }}
+          RCLONE_CONFIG_R2_TYPE: s3
+          RCLONE_CONFIG_R2_PROVIDER: Cloudflare
+          RCLONE_CONFIG_R2_REGION: auto
+          RCLONE_CONFIG_R2_ENDPOINT: https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
+          RCLONE_CONFIG_R2_NO_CHECK_BUCKET: 'true'
+          RCLONE_CONFIG_R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          RCLONE_CONFIG_R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+        run: |
+          args=(upload --bucket "$R2_BUCKET" --prefix "$R2_PREFIX")
+          if [[ "$OVERWRITE_EXISTING" == "true" ]]; then args+=(--overwrite); fi
+          python3 scripts/hassle_android_r2_mirror.py "${args[@]}"
+
+      - name: Verify existing R2 objects by size and MD5
+        if: inputs.mode == 'verify'
+        env:
+          R2_BUCKET: ${{ inputs.bucket }}
+          R2_PREFIX: ${{ inputs.prefix }}
+          RCLONE_CONFIG_R2_TYPE: s3
+          RCLONE_CONFIG_R2_PROVIDER: Cloudflare
+          RCLONE_CONFIG_R2_REGION: auto
+          RCLONE_CONFIG_R2_ENDPOINT: https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
+          RCLONE_CONFIG_R2_NO_CHECK_BUCKET: 'true'
+          RCLONE_CONFIG_R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          RCLONE_CONFIG_R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+        run: python3 scripts/hassle_android_r2_mirror.py verify --bucket "$R2_BUCKET" --prefix "$R2_PREFIX"
+
