@@ -88,9 +88,16 @@ jobs:
       - name: Install rclone
         if: inputs.mode != 'preflight'
         run: |
-          sudo apt-get update
-          sudo apt-get install --yes rclone
+          RCLONE_VERSION=1.75.2
+          curl --fail --location --retry 3 \
+            --output "$RUNNER_TEMP/rclone.zip" \
+            "https://downloads.rclone.org/v${RCLONE_VERSION}/rclone-v${RCLONE_VERSION}-linux-amd64.zip"
+          python3 -m zipfile -e "$RUNNER_TEMP/rclone.zip" "$RUNNER_TEMP/rclone"
+          RCLONE_BINARY="$(find "$RUNNER_TEMP/rclone" -maxdepth 2 -type f -name rclone -print -quit)"
+          test -n "$RCLONE_BINARY"
+          sudo install -m 0755 "$RCLONE_BINARY" /usr/local/bin/rclone
           rclone version
+          rclone copyurl --help | grep -F -- '--urls'
 
       - name: Check source manifests
         if: inputs.mode == 'preflight'
