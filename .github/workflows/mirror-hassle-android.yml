@@ -53,6 +53,22 @@ jobs:
             exit 1
           fi
 
+      - name: Check R2 credentials are configured
+        if: inputs.mode != 'preflight'
+        env:
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+        run: |
+          missing=()
+          [[ -n "$R2_ACCOUNT_ID" ]] || missing+=(R2_ACCOUNT_ID)
+          [[ -n "$R2_ACCESS_KEY_ID" ]] || missing+=(R2_ACCESS_KEY_ID)
+          [[ -n "$R2_SECRET_ACCESS_KEY" ]] || missing+=(R2_SECRET_ACCESS_KEY)
+          if (( ${#missing[@]} )); then
+            echo "Missing R2 secrets in the hassle-r2-mirror environment: ${missing[*]}"
+            exit 1
+          fi
+
       - name: Install rclone
         if: inputs.mode != 'preflight'
         run: |
