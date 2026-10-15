@@ -231,36 +231,26 @@ def verify(objects: list[Object], target: str) -> None:
 
 
 def upload(objects: list[Object], target: str, overwrite: bool) -> None:
-    args = ["rclone", "copyurl", "--urls"]
-    with tempfile.NamedTemporaryFile("w", newline="", encoding="utf-8", suffix=".csv", delete=False) as csv_file:
-        csv_path = csv_file.name
-        writer = csv.writer(csv_file, lineterminator="\n")
-        for obj in objects:
-            writer.writerow((obj.url, obj.key))
-    try:
-        args.append(csv_path)
-        args.append(target)
-        # R2 reset several concurrent large PutObject requests; serialize large
-        # transfers and use multipart uploads with a conservative chunk worker count.
-        args.extend((
-            "--transfers", "1",
-            "--checkers", "2",
-            "--retries", "10",
-            "--low-level-retries", "20",
-            "--s3-upload-cutoff", "16M",
-            "--s3-upload-concurrency", "1",
-            "--stats", "30s",
-            "--header-download", "Accept-Encoding: identity",
-        ))
+    base_args = [
+        "rclone",
+        "copyurl",
+        "--transfers", "1",
+        "--checkers", "2",
+        "--retries", "10",
+        "--low-level-retries", "20",
+        "--s3-upload-cutoff", "16M",
+        "--s3-upload-concurrency", "1",
+        "--stats", "30s",
+        "--header-download", "Accept-Encoding: identity",
+    ]
+    print(f"Streaming {len(objects)} objects to {target}; local temporary data is only the URL list.")
+    for index, obj in enumerate(objects, 1):
+        args = [*base_args, obj.url, f"{target}/{obj.key}"]
         if not overwrite:
             args.append("--no-clobber")
-        print(f"Streaming {len(objects)} objects to {target}; local temporary data is only the URL list.")
         subprocess.run(args, check=True)
-    finally:
-        try:
-            os.unlink(csv_path)
-        except FileNotFoundError:
-            pass
+        if index % 25 == 0 or index == len(objects):
+            print(f"Uploaded: {index}/{len(objects)} objects")
     verify(objects, target)
 
 
