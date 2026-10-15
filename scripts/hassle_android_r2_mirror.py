@@ -248,9 +248,17 @@ def upload(objects: list[Object], target: str, overwrite: bool) -> None:
         args = [*base_args, obj.url, f"{target}/{obj.key}"]
         if not overwrite:
             args.append("--no-clobber")
-        subprocess.run(args, check=True)
+        proc = subprocess.run(args, text=True, capture_output=True)
+        if proc.returncode and "file already exist" not in (proc.stderr or ""):
+            raise subprocess.CalledProcessError(
+                proc.returncode,
+                args,
+                output=proc.stdout,
+                stderr=proc.stderr,
+            )
         if index % 25 == 0 or index == len(objects):
-            print(f"Uploaded: {index}/{len(objects)} objects")
+            state = "checked/skipped existing" if proc.returncode else "uploaded"
+            print(f"Processed: {index}/{len(objects)} objects ({state})")
     verify(objects, target)
 
 
